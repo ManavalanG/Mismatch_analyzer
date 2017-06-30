@@ -1,0 +1,120 @@
+###  Settings for Mismatch Analyzer  ###
+
+  ## Colors used for highlighting in html #
+  ## Use html color code to change (Google for html color codes)
+  ## Example color codes: green - '#42DB33', yellow - '#FFFF00', pink - '#F73D94', orange - '#FFA500', violet_red - '#CC3399'
+  ## violet - '#9900FF', magenta - '#FF00FF', blue - '#6E9EFF'
+
+    ## 1. If residue matches:  (default - #42DB33)
+    match_color:     #42DB33
+
+    ## 2. If residue is a mismatch but similar to residue under query:  (default - #FFFF00)
+    similar_color:   #FFFF00
+
+    ## 3. If residue is a mismatch and not similar to residue under query:  (default - #F73D94)
+    mismatch_color:  #F73D94
+
+
+  ## Color codes used to rank conservation of residues in reference sequence in HTML output file
+  ## Color codes should be separated by comma. Space is optional.
+  ## Default:    #f2e6ec, #f0c0d9, #de68a6, #cc3399, #fed98e, #fe9929, #cc4c02, #99cc99, #34a963, #006837
+
+  color_gradient:    #f2e6ec, #f0c0d9, #de68a6, #cc3399, #fed98e, #fe9929, #cc4c02, #99cc99, #34a963, #006837
+
+
+  ## Include Reference sequence in %Identity and % residue conservation analysis ##
+  ## (Default is 'Yes'. If it should not be included, set it to 'No')
+
+    ref_included_in_analysis:     No
+
+
+  ## Similar amino acid residues set ##
+  ## (Default used in ResCons - AVFPMILW, DE, RK, STYHCNGQ
+
+    aa_set:           AVFPMILW, DE, RK, STYHCNGQ
+
+
+  ## Method to calculate conservation score ##
+  ## Available options:  Amino_Acid_Grouping, Liu08_Non_Seq_Weighted, Liu08_Seq_Weighted    (similar_amino_acid uses similar amino acid residues set defined above.)
+  
+    conservation_method:    Liu08_Non_Seq_Weighted
+
+
+  ## Delimiter used in fasta IDs ##
+  ## Default delimiter used is a pipe symbol
+
+    id_delimiter:     |
+
+
+  ## ClustalO command (local) used in ResCons ##
+  ## Note that accented/smart symbols will result in error. Especially True in Mac OS when using TextEdit. For example: ‘ is not same as '. Former is not allowed. Use dumb quotes. Copy and paste the correct symbol if you don't know what this means.
+  ## Integers, True and False should not be in quotes. Anything else should be in quotes for parameter values.
+  ## Default:   {'outfmt': 'clu', 'iterations': 3, 'force': True, 'guidetree_out': 'default.newick'}
+
+    ClustalO_Command_local:  {'outfmt': 'fasta', 'iterations': 3, 'force': True, 'guidetree_out': 'default.newick'}
+
+
+  ## ClustalO command (for web server) used in ResCons. An email id is required to use EMBL's Clustal omega webserver##
+
+    ClustalO_Command_web:  --email your_email@here.com --iterations 3
+
+
+  ## Method  used to draw bar chart in html output file ##
+  ## Available options:  ‘matplot’  ‘chart.js’    ‘chart new.js’    (‘matplot’ uses matplotlib whereas the rest uses javascript-html5)
+
+    chart_method:     chartnew.js
+
+
+
+
+###  Setting for GenBank/GenPept to fasta Converter  ###
+
+  ## Length of Fasta ID allowed
+  ## Default: 127
+
+    Fasta_ID_length:    127
+
+
+  ## Connector symbol used in fasta ID in output file
+  ## Default: Pipe symbol
+
+    connector_id:       |
+
+
+  ## Symbols that are to be replaced when present in sequence identifier.
+  ## Default symbols used are symbols that cause trouble when used in phylogenetic tree in ‘Newick format’
+  ## Enter the symbols to be replaced as separated by single space. Characters can also be used along with symbols. 
+  ## No characters other than symbols to be replaced should be mentioned here. Space character will be replaced by ResCons no matter what!
+  ## Default is    ( ) [ ] : ; , '
+
+    symbols_to_be_replaced:    ( ) [ ] : ; , '
+
+
+  ## Symbol used to replace newick-sensitive symbols
+  ## Default: _
+
+    newick_sym_replace:  _
+
+
+
+###  Settings for Fasta Description / ID Extractor ###
+
+  ## Regular expression used in Description Extractor
+  ## Default: (.+) \[.+
+
+  regex_desc_extr:       (.+) \[.+
+
+
+  ## Regular expression used in ID Extractor
+  ## Default: (.+) \[.+
+
+  regex_id_extr:         (\w+)\|.+
+
+
+
+###  Settings for Filter fasta by Sequences' Description ###
+
+  ## Regular expression used
+  ## Default: (.+) \[.+
+
+  regex_desc_fltr:       (.+) \[.+

@@ -1,0 +1,30 @@
+Sequences file used:    "/Users/mana/Documents/GitHub_downloaded/Mismatch_analyzer/test_data/aligned.fasta"
+Reference file used:    "/Users/mana/Documents/GitHub_downloaded/Mismatch_analyzer/test_data/Reference.fasta"
+Residue conservation method used:    Amino acid Grouping
+
+Number of sequences
+       in alignment (including Reference sequence):      3
+       that have all residues matching (including Reference sequence):   1 (33.3 %)
+       that have at least one mismatching residue:      2 (66.7 %)
+
+
+*** Records that have mismatches in at least one of the query sites ***
+
+S.No ,Title_1,Sequence Length,No. of Mismatches,1 "M",2 "R",3 "I"
+1,id_3,60,1,=,D,=
+2,id_2,60,2,=,N,L
+
+
+*** Unique residues seen at the query sites and their count. ***
+** (Note: Calculation includes Reference sequences's residue at that position) **
+
+,Expected Residue, ,Identity_count,% Identity,Unique residues' count and fraction
+,1 "M",,3,100.0,M: 3 (150.0%)
+,2 "R",,1,33.3,R: 1 (50.0%),N: 1 (50.0%),D: 1 (50.0%)
+,3 "I",,2,66.7,I: 2 (100.0%),L: 1 (50.0%)
+
+
+*** Records that Do Not have mismatches at any of the query sites ***
+
+S.No ,Title_1,Sequence Length,No. of Mismatches,1 "M",2 "R",3 "I"
+1,id_1,60,0,=,=,=
