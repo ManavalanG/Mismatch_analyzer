@@ -110,28 +110,41 @@ def split_id_by_delimiter(results_csv_pd):
     return title_df
 
 
+# adds serial number to DF in the front
+def add_serial_no(df):
+    df.insert(0, 'S.No', [x for x in range(1, len(df) + 1)])
+
+
+# write results to a csv file
 def write_csv_out(results_csv_pd):
-    print results_csv_pd
+    match_only_pd = results_csv_pd[results_csv_pd['mismatch_count'] == 0]
+    add_serial_no(match_only_pd)
 
-    match_only_pd = results_csv_pd[results_csv_pd['mismatch_count']==0]
-    # print match_only_pd
+    mismatch_only_pd = results_csv_pd[results_csv_pd['mismatch_count'] != 0]
+    add_serial_no(mismatch_only_pd)
 
-    mismatch_only_pd = results_csv_pd[results_csv_pd['mismatch_count']!=0]
-    # mismatch_only_pd['S.No'] = [x for x in range(1, len(mismatch_only_pd)+1)]
-    mismatch_only_pd.insert(0, 'S.No', [x for x in range(1, len(mismatch_only_pd)+1)])
-    print mismatch_only_pd
+    csv_outfile = 'csv_out.tsv'
+    with open(csv_outfile, 'w') as csv_handle:
+        csv_handle.write('*** Records that have mismatches in at least one of the query sites ***\n')
+        mismatch_only_pd.to_csv(csv_handle, sep='\t', index=False)
 
-def prepare_for_csv_output(query_region_pd, bool_query_region_pd, inverse_bool_query_region_pd, seq_length_alignment_pd):
+        csv_handle.write('\n*** Records that Do Not have mismatches at any of the query sites ***\n')
+        match_only_pd.to_csv(csv_handle, sep='\t', index=False)
+
+
+def prepare_for_csv_output(query_region_pd, bool_query_region_pd, inverse_bool_query_region_pd, seq_length_alignment_pd, query_info_in_alignment_pd):
     results_csv_pd = query_region_pd.T * inverse_bool_query_region_pd.T
 
     for col_name in results_csv_pd.columns:
         results_csv_pd.ix[(results_csv_pd[col_name]==''), col_name] = '='
 
-    results_csv_pd['mismatch_count'] = bool_query_region_pd[bool_query_region_pd==0].count()
-    results_csv_pd['seq_length_alignment_pd'] = seq_length_alignment_pd
+    dict_name = query_info_in_alignment_pd.set_index('pos_in_alignment')['query_label_csv'].to_dict()
+    results_csv_pd.rename(columns=dict_name, inplace=True)
+
+    results_csv_pd.insert(0, 'mismatch_count', bool_query_region_pd[bool_query_region_pd==0].count())
+    results_csv_pd.insert(0, 'seq_length_alignment_pd', seq_length_alignment_pd)
 
     title_df = split_id_by_delimiter(results_csv_pd)
-
     results_csv_pd = pd.concat([title_df, results_csv_pd], axis=1)
 
     write_csv_out(results_csv_pd)
@@ -199,7 +212,7 @@ def process_for_html(bool_query_region_pd, alignment_pd, query_pos_aligned, quer
 
 # def xxxx():
 if __name__ == '__main__':
-    query_pos_actual = [1,2,3,4,5]
+    query_pos_actual = [1,3,13]
 
     reference_f = 'test_data/Reference.fasta'
     alignment_f = 'test_data/aligned.fasta'
@@ -218,11 +231,12 @@ if __name__ == '__main__':
 
     # get query region of alignment
     query_region_pd, bool_query_region_pd, inverse_bool_query_region_pd = booleante(alignment_pd, query_pos_aligned, ref_id)
+    # print query_info_in_alignment_pd
 
     # get length of sequences in alignment
     seq_length_alignment_pd = alignment_pd[alignment_pd != '-'].count()
 
-    results_csv_pd = prepare_for_csv_output(query_region_pd, bool_query_region_pd, inverse_bool_query_region_pd, seq_length_alignment_pd)
+    results_csv_pd = prepare_for_csv_output(query_region_pd, bool_query_region_pd, inverse_bool_query_region_pd, seq_length_alignment_pd, query_info_in_alignment_pd)
 
     process_for_html(bool_query_region_pd, alignment_pd, query_pos_aligned, query_info_in_alignment_pd)
 

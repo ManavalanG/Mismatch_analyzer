@@ -1,0 +1,8 @@
+*** Records that have mismatches in at least one of the query sites ***
+S.No	Title_0	Title_1	seq_length_alignment_pd	mismatch_count	"1 ""M"""	"3 ""I"""	"13 ""P"""
+1	id_2	b	56	2	=	N	E
+2	i	c	57	2	=	K	R
+
+*** Records that Do Not have mismatches at any of the query sites ***
+S.No	Title_0	Title_1	seq_length_alignment_pd	mismatch_count	"1 ""M"""	"3 ""I"""	"13 ""P"""
+1	id_1	a	57	0	=	=	=
