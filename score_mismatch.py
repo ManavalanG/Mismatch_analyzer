@@ -1,4 +1,5 @@
 from Bio import AlignIO
+from Bio import SeqIO
 import pandas as pd
 import pandascharm as pc
 import numpy as np
@@ -54,6 +55,10 @@ def booleante(alignment_pd, query_pos_aligned, ref_id):
     return query_pd, bool_query_pd, inverse_bool_query_pd
 
 
+def query_pos_index(series):
+    print series
+    pass
+
 def write_html(alignment_pd, id_maxLength):
     alignment_len = len(alignment_pd.columns)
     block_size = 60
@@ -70,36 +75,27 @@ def write_html(alignment_pd, id_maxLength):
             max = (block_no +1) * block_size
             if alignment_len <= max:
                 max = alignment_len
-            # print range(min, max)
-            # print
 
             html_blocks_pd[block_no] = alignment_pd[range(min, max)].apply(lambda x: ''.join(x), axis=1)
-            # html_block = alignment_pd[range(min, max)].apply(lambda x: ''.join(x), axis=1)
 
-        # print html_blocks_pd
-
-                # print type(html_blocks_pd[[0]])
-                # print html_blocks_pd.index.str.len().max()
             for i, item in html_blocks_pd[block_no].iteritems():
                 handle.write('%s    <spaced>%s</spaced>\n' % (i.ljust(id_maxLength), item))
 
             handle.write('\n\n')
-                # print i, '\t\t2222\t', row
-            # xx = html_blocks_pd[[0]].to_string(index=False, justify='right', header=None)
-            # handle.write(xx)
+
+    # query_pos_index(html_blocks_pd[block_no])
 
 
 def process_for_html(bool_query_pd, alignment_pd, query_pos_aligned):
     # alignment_len = len(alignment_pd)
 
-    print 'adsf'
     bool_query_pd = bool_query_pd.T
     alignment_pd = alignment_pd.T
     id_maxLength = alignment_pd.index.str.len().max()
 
-    match_prefix = '<strong><span style="background-color: green">'
+    match_prefix = '<strong><span style="background-color: #42DB33">'
     match_suffix = '</span></strong>'
-    mismatch_prefix = '<strong><span style="background-color: red">'
+    mismatch_prefix = '<strong><span style="background-color: #F73D94">'
 
     for pos in query_pos_aligned:
         prefix = bool_query_pd[pos].apply(lambda x:match_prefix if x else mismatch_prefix)
@@ -110,14 +106,86 @@ def process_for_html(bool_query_pd, alignment_pd, query_pos_aligned):
     write_html(alignment_pd, id_maxLength)
 
 
+def fasta_to_pandas(f):
+    data_fasta = AlignIO.read(f, "fasta")
+    data_pd = pc.from_bioalignment(data_fasta)       # converted to pandas dataframe
+    # data_pd = data_pd.astype(object)
+    for col_name in data_pd.columns:
+        data_pd[col_name] = data_pd[col_name].astype(object)
+
+
+    return data_pd
+
+
+
+def check_ref_seq_in_alignment(reference_pd, alignment_pd):
+    ref_id = list(reference_pd.columns)
+    alignment_IDs = list(alignment_pd.columns)
+
+    if len(ref_id) > 1:
+        print 'Reference file has more than one sequence. Only one sequence is allowed'
+        raise
+    else:
+        ref_id = ref_id[0]
+
+    if ref_id not in alignment_IDs:
+        print "Reference sequence's ID not found in Query sequences file. Fix it and try again."
+        raise
+
+
+    # ref_seq_in_alignment = alignment_pd.loc[(alignment_pd[ref_id] != '-'), ref_id].reset_index(drop=True)
+    # ref_seq_in_alignment = alignment_pd.loc[(alignment_pd[ref_id] != '-'), ref_id].reset_index()
+    ref_seq_in_alignment = alignment_pd.loc[(alignment_pd[ref_id] != '-'), [ref_id]]
+    ref_seq_in_alignment['index_in_alignment'] = ref_seq_in_alignment.index
+    ref_seq_in_alignment = ref_seq_in_alignment.reset_index(drop=True)
+    # print ref_seq_in_alignment
+
+
+    if len(ref_seq_in_alignment) != len(reference_pd[ref_id]):
+        print "Reference sequence in Query sequences file does not match with sequence in Reference File. Also, their length don't match. Fix it and try again."
+        raise
+    elif not ref_seq_in_alignment[ref_id].equals(reference_pd[ref_id]):
+        print 'Reference sequence in Query sequences file does not match with sequence in Reference File. Fix it and try again.'
+        raise
+
+    return ref_id, ref_seq_in_alignment
+
+
+def get_query_residue_info(query_pos_actual, reference_pd, ref_id, ref_seq_in_alignment):
+    query_pos_0indexed = [x-1  for x in query_pos_actual]
+
+    # get query residues
+    query_residues_pd = reference_pd.iloc[query_pos_0indexed, :]
+    query_residues_pd['actual_pos'] = query_residues_pd.index + 1
+
+    query_info_in_alignment_pd = ref_seq_in_alignment.iloc[query_residues_pd.index, :]
+    query_info_in_alignment_pd.rename(columns={ref_id : 'query_residues', 'index_in_alignment': 'pos_in_alignment'}, inplace=True)
+    query_info_in_alignment_pd['query_pos_actual'] = query_info_in_alignment_pd.index + 1
+    query_info_in_alignment_pd['query_label_csv'] = query_info_in_alignment_pd['query_pos_actual'].astype(str) + ' "' + query_info_in_alignment_pd['query_residues'] + '"'
+    query_info_in_alignment_pd['query_label_html'] = query_info_in_alignment_pd['query_pos_actual'].astype(str) + '<BR>' + query_info_in_alignment_pd['query_residues']
+    print query_info_in_alignment_pd
+
+    return query_residues_pd, query_info_in_alignment_pd
+
 
 
 # def xxxx():
 if __name__ == '__main__':
-    ref_id = 'id_1|a'
+    query_pos_actual = [1,3]
+
+    reference_f = 'test_data/Reference.fasta'
+    alignment_f = 'test_data/aligned.fasta'
+    reference_pd = fasta_to_pandas(reference_f)
+    alignment_pd = fasta_to_pandas(alignment_f)
+
+    # check reference sequence criteria pass prelimiary test
+    ref_id, ref_seq_in_alignment = check_ref_seq_in_alignment(reference_pd, alignment_pd)
+
+    query_residues_pd, query_info_in_alignment_pd = get_query_residue_info(query_pos_actual, reference_pd, ref_id, ref_seq_in_alignment)
+
+    # query_pos_aligned = query_info_in_alignment_pd['index'].tolist()
+
     query_pos_aligned = [1,2]
-    aligned_data = AlignIO.read('test_data/aligned.fasta', "fasta")
-    alignment_pd = pc.from_bioalignment(aligned_data)       # converted to pandas dataframe
 
 
 
@@ -140,9 +208,9 @@ if __name__ == '__main__':
         alignment_pd = alignment_pd.T
         id_maxLength = alignment_pd.index.str.len().max()
 
-        match_prefix = '<strong><span style="background-color: green">'
+        match_prefix = '<strong><span style="background-color: #42DB33">'
         match_suffix = '</span></strong>'
-        mismatch_prefix = '<spaced><strong><span style="background-color: red">'
+        mismatch_prefix = '<spaced><strong><span style="background-color: #F73D94">'
 
         for pos in query_pos_aligned:
             prefix = bool_query_pd[pos].apply(lambda x:match_prefix if x else mismatch_prefix)
