@@ -82,6 +82,7 @@ def get_query_residue_info(query_pos_actual, reference_pd, ref_id, ref_seq_in_al
 
     query_info_in_alignment_pd = ref_seq_in_alignment.iloc[query_ref_pd.index, :]
     query_info_in_alignment_pd.rename(columns={ref_id : 'query_residues', 'index_in_alignment': 'pos_in_alignment'}, inplace=True)
+    query_info_in_alignment_pd['query_pos_in_ref'] = query_info_in_alignment_pd.index
     query_info_in_alignment_pd['query_pos_actual'] = query_info_in_alignment_pd.index + 1
     query_info_in_alignment_pd['query_label_csv'] = query_info_in_alignment_pd['query_pos_actual'].astype(str) + ' "' + query_info_in_alignment_pd['query_residues'] + '"'
     query_info_in_alignment_pd['query_label_html'] = query_info_in_alignment_pd['query_pos_actual'].astype(str) + '<BR>' + query_info_in_alignment_pd['query_residues']
@@ -105,7 +106,7 @@ def split_id_by_delimiter(results_csv_pd):
     title_df = pd.DataFrame(index=results_csv_pd.index)
     title_df['title'] = results_csv_pd.index
     title_df = title_df['title'].str.split('|', expand=True)  # split using a delimiter symbol
-    title_df.columns = pd.Series(['Title'] * 2).map(str) + '_' + pd.Series(title_df.columns).map(str)
+    title_df.columns = pd.Series(['ID'] * 2).map(str) + '_' + pd.Series(title_df.columns + 1).map(str)
 
     return title_df
 
@@ -115,24 +116,69 @@ def add_serial_no(df):
     df.insert(0, 'S.No', [x for x in range(1, len(df) + 1)])
 
 
+def summarize_unique_residues(query_info_in_alignment_pd, query_region_pd, ref_id):
+    # print query_info_in_alignment_pd
+    query_region_pd = query_region_pd.T     # transpose and save
+    query_region_pd.columns = query_info_in_alignment_pd['query_pos_in_ref']    # rename columns from pos-in-alignment to pos-in-reference-seq
+    # print query_region_pd
+    query_region_pd.drop(ref_id, axis=0, inplace=True)
+    # print query_region_pd
+
+    unique_pd = pd.DataFrame(index=query_info_in_alignment_pd.index)
+    unique_pd['Expected Residue'] = query_info_in_alignment_pd['query_label_csv']
+    for query_pos in query_region_pd.columns:
+        a = query_region_pd[query_pos].value_counts()
+        a_perc = (query_region_pd[query_pos].value_counts(normalize=True)*100).round(1)
+
+        value_count_pos_pd = pd.DataFrame()
+        value_count_pos_pd['count'] = a
+        value_count_pos_pd['perc'] = a_perc
+        value_count_pos_pd['residue'] = a_perc.index
+
+        temp = ''
+        for pos in value_count_pos_pd.index:
+            temp += '%s: %i (%0.1f%%), ' % (pos, value_count_pos_pd.loc[pos, 'count'], value_count_pos_pd.loc[pos, 'perc'])
+        temp = temp.strip(', ')
+
+        query_residue = query_info_in_alignment_pd.loc[query_pos, 'query_residues']
+
+        if query_residue in a:
+            unique_pd.loc[query_pos, 'Identity_count'] = a[query_residue]
+            unique_pd.loc[query_pos, '% Identity'] = a_perc[query_residue]
+        else:
+            unique_pd.loc[query_pos, 'Identity_count'] = 0
+            unique_pd.loc[query_pos, '% Identity'] = 0
+
+        unique_pd.loc[query_pos, "Unique residues' count and fraction"] = temp
+
+    # unique_pd.to_csv('valuecount.tsv', sep='\t', index=False)
+    return unique_pd
+
+
 # write results to a csv file
-def write_csv_out(results_csv_pd):
+def write_csv_out(results_csv_pd, ref_id):
     match_only_pd = results_csv_pd[results_csv_pd['mismatch_count'] == 0]
     add_serial_no(match_only_pd)
 
     mismatch_only_pd = results_csv_pd[results_csv_pd['mismatch_count'] != 0]
+    mismatch_only_pd.sort_values('mismatch_count', ascending=False)
     add_serial_no(mismatch_only_pd)
+
+    unique_pd = summarize_unique_residues(query_info_in_alignment_pd, query_region_pd, ref_id)
 
     csv_outfile = 'csv_out.tsv'
     with open(csv_outfile, 'w') as csv_handle:
-        csv_handle.write('*** Records that have mismatches in at least one of the query sites ***\n')
+        csv_handle.write('\n*** Records that have mismatches in at least one of the query sites ***\n')
         mismatch_only_pd.to_csv(csv_handle, sep='\t', index=False)
 
-        csv_handle.write('\n*** Records that Do Not have mismatches at any of the query sites ***\n')
+        csv_handle.write('\n\n*** Unique residues seen at the query sites and their count. ***\n')
+        unique_pd.to_csv(csv_handle, sep='\t', index=False)
+
+        csv_handle.write('\n\n*** Records that Do Not have mismatches at any of the query sites ***\n')
         match_only_pd.to_csv(csv_handle, sep='\t', index=False)
 
 
-def prepare_for_csv_output(query_region_pd, bool_query_region_pd, inverse_bool_query_region_pd, seq_length_alignment_pd, query_info_in_alignment_pd):
+def prepare_for_csv_output(query_region_pd, bool_query_region_pd, inverse_bool_query_region_pd, seq_length_alignment_pd, query_info_in_alignment_pd, ref_id):
     results_csv_pd = query_region_pd.T * inverse_bool_query_region_pd.T
 
     for col_name in results_csv_pd.columns:
@@ -147,7 +193,7 @@ def prepare_for_csv_output(query_region_pd, bool_query_region_pd, inverse_bool_q
     title_df = split_id_by_delimiter(results_csv_pd)
     results_csv_pd = pd.concat([title_df, results_csv_pd], axis=1)
 
-    write_csv_out(results_csv_pd)
+    write_csv_out(results_csv_pd, ref_id)
 
     return results_csv_pd
 
@@ -231,12 +277,13 @@ if __name__ == '__main__':
 
     # get query region of alignment
     query_region_pd, bool_query_region_pd, inverse_bool_query_region_pd = booleante(alignment_pd, query_pos_aligned, ref_id)
-    # print query_info_in_alignment_pd
+
+    # summarize_unique_residues(query_info_in_alignment_pd, query_region_pd)
 
     # get length of sequences in alignment
     seq_length_alignment_pd = alignment_pd[alignment_pd != '-'].count()
 
-    results_csv_pd = prepare_for_csv_output(query_region_pd, bool_query_region_pd, inverse_bool_query_region_pd, seq_length_alignment_pd, query_info_in_alignment_pd)
+    results_csv_pd = prepare_for_csv_output(query_region_pd, bool_query_region_pd, inverse_bool_query_region_pd, seq_length_alignment_pd, query_info_in_alignment_pd, ref_id)
 
     process_for_html(bool_query_region_pd, alignment_pd, query_pos_aligned, query_info_in_alignment_pd)
 
