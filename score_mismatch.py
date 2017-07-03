@@ -155,30 +155,7 @@ def summarize_unique_residues(query_info_in_alignment_pd, query_region_pd, ref_i
     return unique_pd
 
 
-# write results to a csv file
-def write_csv_out(results_csv_pd, ref_id):
-    match_only_pd = results_csv_pd[results_csv_pd['mismatch_count'] == 0]
-    add_serial_no(match_only_pd)
-
-    mismatch_only_pd = results_csv_pd[results_csv_pd['mismatch_count'] != 0]
-    mismatch_only_pd.sort_values('mismatch_count', ascending=False)
-    add_serial_no(mismatch_only_pd)
-
-    unique_pd = summarize_unique_residues(query_info_in_alignment_pd, query_region_pd, ref_id)
-
-    csv_outfile = 'csv_out.tsv'
-    with open(csv_outfile, 'w') as csv_handle:
-        csv_handle.write('\n*** Records that have mismatches in at least one of the query sites ***\n')
-        mismatch_only_pd.to_csv(csv_handle, sep='\t', index=False)
-
-        csv_handle.write('\n\n*** Unique residues seen at the query sites and their count. ***\n')
-        unique_pd.to_csv(csv_handle, sep='\t', index=False)
-
-        csv_handle.write('\n\n*** Records that Do Not have mismatches at any of the query sites ***\n')
-        match_only_pd.to_csv(csv_handle, sep='\t', index=False)
-
-
-def prepare_for_csv_output(query_region_pd, bool_query_region_pd, inverse_bool_query_region_pd, seq_length_alignment_pd, query_info_in_alignment_pd, ref_id):
+def prepare_for_csv_output(query_region_pd, bool_query_region_pd, inverse_bool_query_region_pd, seq_length_alignment_pd, query_info_in_alignment_pd):
     results_csv_pd = query_region_pd.T * inverse_bool_query_region_pd.T
 
     for col_name in results_csv_pd.columns:
@@ -193,9 +170,30 @@ def prepare_for_csv_output(query_region_pd, bool_query_region_pd, inverse_bool_q
     title_df = split_id_by_delimiter(results_csv_pd)
     results_csv_pd = pd.concat([title_df, results_csv_pd], axis=1)
 
-    write_csv_out(results_csv_pd, ref_id)
-
     return results_csv_pd
+
+
+# write results to a csv file
+def write_csv_out(results_csv_pd, unique_pd):
+    match_only_pd = results_csv_pd[results_csv_pd['mismatch_count'] == 0]
+    add_serial_no(match_only_pd)
+
+    mismatch_only_pd = results_csv_pd[results_csv_pd['mismatch_count'] != 0]
+    mismatch_only_pd.sort_values('mismatch_count', ascending=False)
+    add_serial_no(mismatch_only_pd)
+
+    # unique_pd = summarize_unique_residues(query_info_in_alignment_pd, query_region_pd, ref_id)
+
+    csv_outfile = 'csv_out.tsv'
+    with open(csv_outfile, 'w') as csv_handle:
+        csv_handle.write('\n*** Records that have mismatches in at least one of the query sites ***\n')
+        mismatch_only_pd.to_csv(csv_handle, sep='\t', index=False)
+
+        csv_handle.write('\n\n*** Unique residues seen at the query sites and their count. ***\n')
+        unique_pd.to_csv(csv_handle, sep='\t', index=False)
+
+        csv_handle.write('\n\n*** Records that Do Not have mismatches at any of the query sites ***\n')
+        match_only_pd.to_csv(csv_handle, sep='\t', index=False)
 
 
 def write_html(alignment_pd, id_maxLength, query_info_in_alignment_pd):
@@ -278,67 +276,16 @@ if __name__ == '__main__':
     # get query region of alignment
     query_region_pd, bool_query_region_pd, inverse_bool_query_region_pd = booleante(alignment_pd, query_pos_aligned, ref_id)
 
-    # summarize_unique_residues(query_info_in_alignment_pd, query_region_pd)
-
     # get length of sequences in alignment
     seq_length_alignment_pd = alignment_pd[alignment_pd != '-'].count()
 
-    results_csv_pd = prepare_for_csv_output(query_region_pd, bool_query_region_pd, inverse_bool_query_region_pd, seq_length_alignment_pd, query_info_in_alignment_pd, ref_id)
+    # summarize residues at query positions
+    unique_pd = summarize_unique_residues(query_info_in_alignment_pd, query_region_pd, ref_id)
+
+    # process data for csv output writing
+    results_csv_pd = prepare_for_csv_output(query_region_pd, bool_query_region_pd, inverse_bool_query_region_pd, seq_length_alignment_pd, query_info_in_alignment_pd)
+
+    # write csv output
+    write_csv_out(results_csv_pd, unique_pd)
 
     process_for_html(bool_query_region_pd, alignment_pd, query_pos_aligned, query_info_in_alignment_pd)
-
-
-
-    # if True:    # for html output
-    if False:
-        bool_query_region_pd = bool_query_region_pd.T
-        alignment_pd = alignment_pd.T
-        id_maxLength = alignment_pd.index.str.len().max()
-
-        match_prefix = '<strong><span style="background-color: #42DB33">'
-        match_suffix = '</span></strong>'
-        mismatch_prefix = '<spaced><strong><span style="background-color: #F73D94">'
-
-        for pos in query_pos_aligned:
-            prefix = bool_query_region_pd[pos].apply(lambda x:match_prefix if x else mismatch_prefix)
-            suffix = bool_query_region_pd[pos].apply(lambda x:match_suffix)
-
-            alignment_pd[pos] = prefix + alignment_pd[pos] + suffix
-
-        # print alignment_pd[[0,1,2,3]]
-
-        # alignment_pd['merged'] = alignment_pd[range(5)].apply(lambda x: ''.join(x), axis=1)
-        # print alignment_pd['merged']
-
-        # alignment_len = 61
-        block_size = 30
-        if alignment_len % block_size:
-            no_of_blocks = (alignment_len/block_size + 1)
-        else:
-            no_of_blocks = alignment_len/block_size
-
-        with open('aa.txt', 'w') as handle:
-
-            html_blocks_pd = pd.DataFrame(index=alignment_pd.index)
-            for block_no in range(0, no_of_blocks):
-                min = block_no * block_size
-                max = (block_no +1) * block_size
-                if alignment_len <= max:
-                    max = alignment_len
-                # print range(min, max)
-                # print
-
-                html_blocks_pd[block_no] = alignment_pd[range(min, max)].apply(lambda x: ''.join(x), axis=1)
-                # html_block = alignment_pd[range(min, max)].apply(lambda x: ''.join(x), axis=1)
-
-            # print html_blocks_pd
-
-                    # print type(html_blocks_pd[[0]])
-                    # print html_blocks_pd.index.str.len().max()
-                for i, item in html_blocks_pd[block_no].iteritems():
-                    handle.write('%s    %s\n' % (i.ljust(id_maxLength), item))
-
-                handle.write('\n\n')
-                    # print i, '\t\t2222\t', row
-                # xx = html_blocks_pd[[0]].to_string(index=False, justify='right', header=None)
-                # handle.write(xx)
