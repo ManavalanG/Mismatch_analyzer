@@ -116,9 +116,10 @@ if __name__ == '__main__':
     if reference_f and alignment_f:
         if not out_dir:
             out_dir = os.path.join(os.path.dirname(alignment_f), 'output')
+            # print out_dir
             mkdir_if_not_exist(out_dir)
 
         # call main script to score mismatches in MSA at query residue positions
-        main_script(reference_f, query_seq_f, alignment_f, query_pos_list)
+        main_script(reference_f, query_seq_f, alignment_f, query_pos_list, out_dir)
 
         print 'Output stored at: \n   %s' % out_dir

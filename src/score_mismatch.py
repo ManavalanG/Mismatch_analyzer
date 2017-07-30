@@ -9,6 +9,7 @@ from Bio import AlignIO
 import pandas as pd
 import pandascharm as pc
 from shutil import copyfile
+import os
 
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 100000)
@@ -169,7 +170,7 @@ def prepare_for_csv_output(query_region_pd, bool_query_region_pd, inverse_bool_q
 
 
 # write results to a csv file
-def write_csv_out(results_csv_pd, unique_pd, reference_f, query_seq_f, alignment_f):
+def write_csv_out(results_csv_pd, unique_pd, bool_query_region_pd, reference_f, query_seq_f, alignment_f, out_dir):
     match_only_pd = results_csv_pd[results_csv_pd['mismatch_count'] == 0]
     add_serial_no(match_only_pd)
 
@@ -179,7 +180,8 @@ def write_csv_out(results_csv_pd, unique_pd, reference_f, query_seq_f, alignment
 
     # unique_pd = summarize_unique_residues(query_info_in_alignment_pd, query_region_pd, ref_id)
 
-    csv_outfile = '../data/output/csv_out.tsv'
+    # csv_outfile = '../data/output/csv_out.tsv'
+    csv_outfile = os.path.join(out_dir, 'csv_out.tsv')
     with open(csv_outfile, 'w') as csv_handle:
         csv_handle.write('Reference sequences file used:    "%s"\n'
                          'Alignment file:    "%s"\n' % (reference_f, alignment_f))
@@ -189,10 +191,11 @@ def write_csv_out(results_csv_pd, unique_pd, reference_f, query_seq_f, alignment
 
 
         # summarize mismatch analysis for output writing
-        temp_1 = (unique_pd['% Identity']==100).sum() - 1   # subtracts 1 to exclude ref sequence
-        temp_1_perc = float(temp_1) / (len(results_csv_pd)-1) * 100
-        temp_2 = (unique_pd['% Identity']!=100).sum()
-        temp_2_perc = float(temp_2) / (len(results_csv_pd)-1) * 100
+        compare_length_pd = bool_query_region_pd.sum() == len(unique_pd)
+        temp_1 = compare_length_pd.sum() - 1
+        temp_2 = len(compare_length_pd) - 1 - temp_1
+        temp_1_perc = float(temp_1) / (len(compare_length_pd)-1) * 100
+        temp_2_perc = float(temp_2) / (len(compare_length_pd)-1) * 100
 
         mismsatch_summary_info = ('Number of sequences (excluding Reference sequence)\n'
                          '       in alignment:                               %i\n'
@@ -294,7 +297,7 @@ def html_color_legend(match_color, similar_color, mismatch_color, out_html_handl
 
 def html_alignment_text(alignment_pd, id_maxLength, colored_id_pd, query_info_in_alignment_pd, out_html_handle):
     alignment_len = len(alignment_pd.columns)
-    block_size = 31
+    block_size = 60
     if alignment_len % block_size:
         no_of_blocks = (alignment_len/block_size + 1)
     else:
@@ -333,14 +336,15 @@ def html_alignment_text(alignment_pd, id_maxLength, colored_id_pd, query_info_in
 
 
 def html_text_out(alignment_pd, id_maxLength, query_info_in_alignment_pd, unique_pd, colored_id_pd, match_color,
-                  similar_color, mismatch_color, mismsatch_summary_info):
+                  similar_color, mismatch_color, mismsatch_summary_info, out_dir):
     # print query_info_in_alignment_pd
     # print unique_pd
     # print list(query_info_in_alignment_pd['query_pos_in_ref'])
 
     html_template_head_f = 'Template_html5_ChartNewjs_head.txt'
     html_template_tail_f = 'Template_html5_ChartNewjs_tail.txt'
-    html_outfile = '../data/output/html_out.html'
+    # html_outfile = '../data/output/html_out.html'
+    html_outfile = os.path.join(out_dir, 'html_out.html')
 
     # write starting block of html file to outfile
     copyfile(html_template_head_f, html_outfile)
@@ -379,9 +383,12 @@ def html_text_out(alignment_pd, id_maxLength, query_info_in_alignment_pd, unique
         # write alignment text
         html_alignment_text(alignment_pd, id_maxLength, colored_id_pd, query_info_in_alignment_pd, out_html_handle)
 
+        # write closing lines to html
+        out_html_handle.write('</PRE>\n</BODY>\n</HTML>')
 
 
-def process_for_html(ref_id, bool_query_region_pd, alignment_pd, query_pos_aligned, query_info_in_alignment_pd, unique_pd, mismsatch_summary_info):
+
+def process_for_html(ref_id, bool_query_region_pd, alignment_pd, query_pos_aligned, query_info_in_alignment_pd, unique_pd, mismsatch_summary_info, out_dir):
     # alignment_len = len(alignment_pd)
 
     bool_query_region_pd = bool_query_region_pd.T
@@ -413,16 +420,16 @@ def process_for_html(ref_id, bool_query_region_pd, alignment_pd, query_pos_align
     colored_id_pd['match_status'] = bool_query_region_pd.sum(axis=1) == len(unique_pd)
     colored_id_pd['ID'] = bool_query_region_pd.index
 
-    colored_id_pd.loc[~(colored_id_pd['match_status']), 'ID'] = colored_id_pd['ID'].apply(lambda x:'%s%s%s' % (mismatch_prefix, x.ljust(id_maxLength), suffix_string))
-    colored_id_pd.loc[(colored_id_pd['match_status']), 'ID'] = colored_id_pd['ID'].apply(lambda x: '%s%s%s' % (match_prefix, x.ljust(id_maxLength), suffix_string))
+    colored_id_pd.loc[~(colored_id_pd['match_status']), 'ID'] = colored_id_pd['ID'].apply(lambda x:'%s%s%s%s' % (mismatch_prefix, x[:2], suffix_string, x[2:].ljust(id_maxLength-2)))
+    colored_id_pd.loc[(colored_id_pd['match_status']), 'ID'] = colored_id_pd['ID'].apply(lambda x: '%s%s%s%s' % (match_prefix, x[:2], suffix_string, x[2:].ljust(id_maxLength-2)))
     colored_id_pd.loc[ref_id, 'ID'] = '%s%s%s' % (ref_prefix, ref_id.ljust(id_maxLength), suffix_string)
 
 
-    html_text_out(alignment_pd, id_maxLength, query_info_in_alignment_pd, unique_pd, colored_id_pd, match_color, similar_color, mismatch_color, mismsatch_summary_info)
+    html_text_out(alignment_pd, id_maxLength, query_info_in_alignment_pd, unique_pd, colored_id_pd, match_color, similar_color, mismatch_color, mismsatch_summary_info, out_dir)
 
 
 
-def main_script(reference_f, query_seq_f, alignment_f, query_pos_list):
+def main_script(reference_f, query_seq_f, alignment_f, query_pos_list, out_dir):
     reference_pd = fasta_to_pandas(reference_f)
     alignment_pd = fasta_to_pandas(alignment_f)
 
@@ -463,11 +470,11 @@ def main_script(reference_f, query_seq_f, alignment_f, query_pos_list):
     # print results_csv_pd
 
     # write csv output
-    mismsatch_summary_info = write_csv_out(results_csv_pd, unique_pd, reference_f, query_seq_f, alignment_f)
+    mismsatch_summary_info = write_csv_out(results_csv_pd, unique_pd, bool_query_region_pd, reference_f, query_seq_f, alignment_f, out_dir)
     print 'Done writing CSV output'
 
     # write html output
-    process_for_html(ref_id, bool_query_region_pd, alignment_pd, query_pos_aligned, query_info_in_alignment_pd, unique_pd, mismsatch_summary_info)
+    process_for_html(ref_id, bool_query_region_pd, alignment_pd, query_pos_aligned, query_info_in_alignment_pd, unique_pd, mismsatch_summary_info, out_dir)
     print 'Done writing HTML output'
 
 
@@ -476,5 +483,6 @@ if __name__ == '__main__':
     reference_f = '../data/Reference.fasta'
     query_seq_f = None
     alignment_f = '../data/aligned.fasta'
+    out_dir = '../data/output/'
 
-    main_script(reference_f, query_seq_f, alignment_f, query_pos_list)
+    main_script(reference_f, query_seq_f, alignment_f, query_pos_list, out_dir)

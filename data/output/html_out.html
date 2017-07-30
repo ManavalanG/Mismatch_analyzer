@@ -3672,8 +3672,8 @@ check_by_ResCons--></HEAD>
 <PRE CLASS="western">
 Number of sequences (excluding Reference sequence)
        in alignment:                               2
-       that have all residues <ins>matching</ins>:            0 (0.0 %)
-       that have at least one <ins>mismatching</ins> residue: 2 (100.0 %)
+       that have all residues <ins>matching</ins>:            1 (50.0 %)
+       that have at least one <ins>mismatching</ins> residue: 1 (50.0 %)
 
 ----------------------------------------------------------------------------------------------------
 
@@ -3685,11 +3685,11 @@ Number of sequences (excluding Reference sequence)
 <script>
 	var barChartData = 
 	{
-		labels : [5, 10, 15],
+		labels : [7, 10],
 		datasets : [
 		{	fillColor : "rgba(51,51,255,0.8)",
 			title: "% Identity",
-			data : [0.0, 100.0, 0.0]  },
+			data : [50.0, 100.0]  },
 
 		]
 	}
@@ -3911,15 +3911,13 @@ var newopts = {
 <TABLE border="1" cellpadding="0" cellspacing="0" HEIGHT="90px" style="table-layout:fixed">
 	<TR ALIGN="CENTER" BGCOLOR="#E3E3E0">
 		<TH scope="row" width=130>Position</TH>
-		<TD width=60><a href="#5">5<BR>A</a></TD>
+		<TD width=60><a href="#7">7<BR>P</a></TD>
 		<TD width=60><a href="#10">10<BR>K</a></TD>
-		<TD width=60><a href="#15">15<BR>E</a></TD>
 	</TR>
 	<TR ALIGN="CENTER">
 		<TH scope="row" width=130>% Identity</TH>
-		<TD width=60>0.0</TD>
+		<TD width=60>50.0</TD>
 		<TD width=60>100.0</TD>
-		<TD width=60>0.0</TD>
 	</TR>
 </TABLE>
 ----------------------------------------------------------------------------------------------------
@@ -3934,13 +3932,11 @@ var newopts = {
 
 ----------------------------------------------------------------------------------------------------
 
-<strong><span style="background-color: #00FFFF">id_1|a</span></strong>    <spaced>MRID<strong><span style="background-color: #42DB33">A</span></strong>IPVG<strong><span style="background-color: #42DB33">K</span></strong>NPPH<strong><span style="background-color: #42DB33">E</span></strong>VNVVIEVPIGGEPIKY</spaced>
-<strong><span style="background-color: #F73D94">id_2|b</span></strong>    <spaced>MNLN<strong><span style="background-color: #F73D94">K</span></strong>IVAG<strong><span style="background-color: #42DB33">K</span></strong>DLPE<strong><span style="background-color: #F73D94">D</span></strong>IYVVIEIPANADPIKY</spaced>
-<strong><span style="background-color: #F73D94">i|c   </span></strong>    <spaced>MDIK<strong><span style="background-color: #F73D94">K</span></strong>IPI-<strong><span style="background-color: #42DB33">K</span></strong>DAPR<strong><span style="background-color: #F73D94">D</span></strong>VNVIIEIPLRSDPVKY</spaced>
+<strong><span style="background-color: #00FFFF">id_1|a</span></strong>    <spaced>MRIDAI<strong><span style="background-color: #42DB33">P</span></strong>VG<strong><span style="background-color: #42DB33">K</span></strong>NPPHEVNVVIEVPIGGEPIKYEMDKDAGALFVDRFLYTAMRYPGNYG-</spaced>
+<strong><span style="background-color: #F73D94">id</span></strong>_2|b    <spaced>MNLNKI<strong><span style="background-color: #F73D94">V</span></strong>AG<strong><span style="background-color: #42DB33">K</span></strong>DLPEDIYVVIEIPANADPIKYEIDKESGALFVDRFMSTAMFYPCGY--</spaced>
+<strong><span style="background-color: #42DB33">i|</span></strong>c       <spaced>MDIKKI<strong><span style="background-color: #42DB33">P</span></strong>I-<strong><span style="background-color: #42DB33">K</span></strong>DAPRDVNVIIEIPLRSDPVKYEVDKESGAMYVDRFLHTAMHYPCNYGF</spaced>
 
 
-<strong><span style="background-color: #00FFFF">id_1|a</span></strong>    <spaced>EMDKDAGALFVDRFLYTAMRYPGNYG-</spaced>
-<strong><span style="background-color: #F73D94">id_2|b</span></strong>    <spaced>EIDKESGALFVDRFMSTAMFYPCGY--</spaced>
-<strong><span style="background-color: #F73D94">i|c   </span></strong>    <spaced>EVDKESGAMYVDRFLHTAMHYPCNYGF</spaced>
-
-
+</PRE>
+</BODY>
+</HTML>
