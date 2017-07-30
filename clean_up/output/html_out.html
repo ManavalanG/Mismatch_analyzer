@@ -3667,11 +3667,15 @@ function tpdraw(ctx,dataval) {
 
 <!--
 following line enables ResCons to read following lines and keep it in memory for later use.
-check_by_ResCons-->sadfghj\sdfgh\dsfghj
-</HEAD>
+check_by_ResCons--></HEAD>
 <BODY LANG="en-US" DIR="LTR">
 <PRE CLASS="western">
-***info_lines***<div>
+Number of sequences (excluding Reference sequence)
+       in alignment:                               2
+       that have all residues <ins>matching</ins>:            0 (0.0 %)
+       that have at least one <ins>mismatching</ins> residue: 2 (100.0 %)
+
+<div>
   <canvas id="canvas_bar" height="350", width = "325" ></canvas>
 <div id="legend"></div>
 </div>
@@ -3683,7 +3687,7 @@ check_by_ResCons-->sadfghj\sdfgh\dsfghj
 		datasets : [
 		{	fillColor : "rgba(51,51,255,0.8)",
 			title: "% Identity",
-			data : [100.0, 50.0, 100.0]  },
+			data : [100.0, 0.0, 50.0]  },
 
 		]
 	}
@@ -3912,8 +3916,8 @@ var newopts = {
 	<TR ALIGN="CENTER">
 		<TH scope="row" width=130>% Identity</TH>
 		<TD width=60>100.0</TD>
+		<TD width=60>0.0</TD>
 		<TD width=60>50.0</TD>
-		<TD width=60>100.0</TD>
 	</TR>
 </TABLE>
 ----------------------------------------------------------------------------------------------------
