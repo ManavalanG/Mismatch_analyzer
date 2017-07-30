@@ -1,3 +1,6 @@
+Reference sequences file used:    test_data/Reference.fasta
+Alignment file:    test_data/aligned.fasta
+
 
 *** Records that have mismatches in at least one of the query sites ***
 S.No	ID_1	ID_2	seq_length_alignment_pd	mismatch_count	"1 ""M"""	"3 ""I"""	"13 ""P"""

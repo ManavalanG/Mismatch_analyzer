@@ -1,0 +1,60 @@
+2017-07-01 23:15:11 Run_Script_Main     INFO     ResCons begins!
+2017-07-01 23:15:11 Run_Script_Main     INFO     ResCons will run in 'Protein mode' as user has requested.
+2017-07-01 23:15:11 Run_Script_Main     INFO     'Reference file provided by user: 
+	/Users/mana/Documents/GitHub_downloaded/Mismatch_analyzer/test_data/Reference.fasta
+2017-07-01 23:15:11 Run_Script_Main     ERROR    Error that resulted when creating path "/Users/mana/Documents/GitHub_downloaded/Mismatch_analyzer/test_data/Output/":
+  [Errno 17] File exists: '/Users/mana/Documents/GitHub_downloaded/Mismatch_analyzer/test_data/Output/'
+2017-07-01 23:15:11 Run_Script_Main     WARNING  Folder "/Users/mana/Documents/GitHub_downloaded/Mismatch_analyzer/test_data/Output/" already exists. All or some files in it may get overwritten by ResCons. Do you wish to continue?
+2017-07-01 23:15:13 Run_Script_Main     INFO     User has selected (True = Yes, False = No):  False
+2017-07-01 23:15:13 Run_Script_Main     INFO     ResCons will stop as user has requested.
+
+2017-07-01 23:15:13 User_error          ERROR    Error that resulted: Traceback (most recent call last):
+  File "/usr/local/Cellar/python/2.7.13/Frameworks/Python.framework/Versions/2.7/lib/python2.7/lib-tk/Tkinter.py", line 1542, in __call__
+    return self.func(*args)
+  File "/Users/mana/Documents/GitHub_downloaded/ResCons/ResCons.py", line 3529, in run_script
+    read_user_input()
+  File "/Users/mana/Documents/GitHub_downloaded/ResCons/ResCons.py", line 3408, in read_user_input
+    verify_filepath_exists(Output_Path)
+  File "/Users/mana/Documents/GitHub_downloaded/ResCons/ResCons.py", line 349, in verify_filepath_exists
+    raise_enabler('User opted not to write in selected output folder!')
+  File "/Users/mana/Documents/GitHub_downloaded/ResCons/ResCons.py", line 443, in raise_enabler
+    raise Exception(string)
+Exception: User opted not to write in selected output folder!
+
+
+2017-07-01 23:15:20 Run_Script_Main     INFO     ResCons begins!
+2017-07-01 23:15:20 Run_Script_Main     INFO     ResCons will run in 'DNA/RNA mode' as user has requested.
+2017-07-01 23:15:20 Run_Script_Main     INFO     'Reference file provided by user: 
+	/Users/mana/Documents/GitHub_downloaded/Mismatch_analyzer/test_data/Reference.fasta
+2017-07-01 23:15:20 Run_Script_Main     ERROR    Error that resulted when creating path "/Users/mana/Documents/GitHub_downloaded/Mismatch_analyzer/test_data/Output/":
+  [Errno 17] File exists: '/Users/mana/Documents/GitHub_downloaded/Mismatch_analyzer/test_data/Output/'
+2017-07-01 23:15:20 Run_Script_Main     WARNING  Folder "/Users/mana/Documents/GitHub_downloaded/Mismatch_analyzer/test_data/Output/" already exists. All or some files in it may get overwritten by ResCons. Do you wish to continue?
+2017-07-01 23:15:23 Run_Script_Main     INFO     User has selected (True = Yes, False = No):  True
+2017-07-01 23:15:23 Run_Script_Main     INFO     ResCons will continue as user requested.
+2017-07-01 23:15:23 Run_Script_Main     INFO     Output folder path provided by user: /Users/mana/Documents/GitHub_downloaded/Mismatch_analyzer/test_data/Output/
+2017-07-01 23:15:23 Clustal_Alignment   INFO     Pre-Aligned file was provided by user.
+2017-07-01 23:15:23 Clustal_Alignment   INFO     Pre-Aligned file provided: 
+	/Users/mana/Documents/GitHub_downloaded/Mismatch_analyzer/test_data/aligned.fasta.
+2017-07-01 23:15:23 GUI_Main            INFO     All output files will be stored at: 
+	/Users/mana/Documents/GitHub_downloaded/Mismatch_analyzer/test_data/Output/.
+2017-07-01 23:15:23 Run_Script_Main     INFO     All residue positions entered are less than the length of reference sequence.
+2017-07-01 23:15:23 Run_Script_Main     INFO     Residue conservation method chosen: amino_acid_grouping
+2017-07-01 23:15:23 Run_Script_Main     INFO     Amino acid grouping set definition: ['AVFPMILW', 'DE', 'RK', 'STYHCNGQ', 'avfpmilw', 'de', 'rk', 'styhcngq']
+2017-07-01 23:15:23 Run_Script_Main     INFO     Included Reference sequence in %identity and %conservation calculations?: No
+2017-07-01 23:15:23 Fetch_Mismatch      INFO     Alignment format is detected as "fasta" format
+2017-07-01 23:15:23 Clustal_Alignment   INFO     Reference sequence matches to corresponding sequence in Alignment file provided.
+2017-07-01 23:15:23 Fetch_Mismatch      INFO     Reference sequence's ID is present in alignment file and their sequences match.
+2017-07-01 23:15:23 Fetch_Mismatch      INFO     Query sites requested: [1, 3, 13]
+2017-07-01 23:15:23 Fetch_Mismatch      INFO     Residues at those query sites: ['M', 'I', 'P']
+2017-07-01 23:15:23 Fetch_Mismatch      INFO     Corresponding sites in the alignment's Reference sequence : [1, 4, 14]
+2017-07-01 23:15:23 Fetch_Mismatch      INFO     Begin extracting residues across alignment at the requested query sites
+2017-07-01 23:15:23 Fetch_Mismatch      INFO     Mismatch details will be written in to file:
+  "	/Users/mana/Documents/GitHub_downloaded/Mismatch_analyzer/test_data/Output/Mismatches_Tabulated.csv"
+2017-07-01 23:15:23 Fetch_Mismatch      INFO     Done writing mismatch details in to csv file mentioned above.
+2017-07-01 23:15:23 GUI_Main            INFO     User has requested to format alignment in html format
+2017-07-01 23:15:23 Run_Script_Main     INFO     User requested HTML color formatting for clustal alignment
+2017-07-01 23:15:23 html_formatting     INFO     Alignment file used for formatting: /Users/mana/Documents/GitHub_downloaded/Mismatch_analyzer/test_data/aligned.fasta
+2017-07-01 23:15:23 html_formatting     INFO     Alignment format is detected as "fasta" format
+2017-07-01 23:15:23 html_formatting     INFO     Formatted aligment will be stored in html file: '/Users/mana/Documents/GitHub_downloaded/Mismatch_analyzer/test_data/Output/Formatted_Alignment.html'
+2017-07-01 23:15:23 html_formatting     INFO     Alignment formatting was completed and saved as above mentioned html file.
+2017-07-01 23:15:23 html_formatting     INFO     Jone Done. Ready for next job!

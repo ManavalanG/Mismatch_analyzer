@@ -176,7 +176,7 @@ def prepare_for_csv_output(query_region_pd, bool_query_region_pd, inverse_bool_q
 
 
 # write results to a csv file
-def write_csv_out(results_csv_pd, unique_pd):
+def write_csv_out(results_csv_pd, unique_pd, reference_f, query_f, alignment_f):
     match_only_pd = results_csv_pd[results_csv_pd['mismatch_count'] == 0]
     add_serial_no(match_only_pd)
 
@@ -188,6 +188,12 @@ def write_csv_out(results_csv_pd, unique_pd):
 
     csv_outfile = 'csv_out.tsv'
     with open(csv_outfile, 'w') as csv_handle:
+        csv_handle.write('Reference sequences file used:    "%s"\n'
+                         'Alignment file:    "%s"\n' % (reference_f, alignment_f))
+        if query_f:
+            csv_handle.write('Query sequences file used:    "%s"\n' % query_f)
+        csv_handle.write('\n')
+
         csv_handle.write('\n*** Records that have mismatches in at least one of the query sites ***\n')
         mismatch_only_pd.to_csv(csv_handle, sep='\t', index=False)
 
@@ -389,12 +395,13 @@ if __name__ == '__main__':
     query_pos_actual = [1,3,13]
 
     reference_f = 'test_data/Reference.fasta'
+    query_f = None
     alignment_f = 'test_data/aligned.fasta'
 
     # runs clustal omega alignment
-    if False:
-        seq_f = ''
-        run_clustal_omega(seq_f, alignment_f)
+    # if False:
+    #     seq_f = ''
+    #     run_clustal_omega(seq_f, alignment_f)
 
     reference_pd = fasta_to_pandas(reference_f)
     alignment_pd = fasta_to_pandas(alignment_f)
@@ -421,6 +428,6 @@ if __name__ == '__main__':
     results_csv_pd = prepare_for_csv_output(query_region_pd, bool_query_region_pd, inverse_bool_query_region_pd, seq_length_alignment_pd, query_info_in_alignment_pd)
 
     # write csv output
-    write_csv_out(results_csv_pd, unique_pd)
+    write_csv_out(results_csv_pd, unique_pd, reference_f, query_f, alignment_f)
 
     process_for_html(bool_query_region_pd, alignment_pd, query_pos_aligned, query_info_in_alignment_pd, unique_pd)
