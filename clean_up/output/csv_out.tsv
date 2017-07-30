@@ -1,5 +1,5 @@
-Reference sequences file used:    test_data/Reference.fasta
-Alignment file:    test_data/aligned.fasta
+Reference sequences file used:    "../test_data/Reference.fasta"
+Alignment file:    "../test_data/aligned.fasta"
 
 
 *** Records that have mismatches in at least one of the query sites ***

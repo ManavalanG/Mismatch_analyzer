@@ -12,19 +12,6 @@ pd.set_option('max_colwidth', 100000)
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
-def example_df():
-    # aa = pd.DataFrame({'a': [1,2], 'b':[3,4], 'c':[5,2]})
-    # aa = pd.DataFrame({'a': ['1','2', '7'], 'b':['3','4', '8'], 'c':['2','2', '8']})
-    aa = pd.DataFrame({'a': ['a','c', 'c'], 'b':['d','e', 'f'], 'c':['g','h', 'c']})
-    print aa
-    # compared = aa.apply(lambda x:x.isin(aa['c']))
-    # print compared
-
-    print aa.apply(lambda x:x==aa['a'])
-
-    for i, x in aa.iteritems():
-        print x
-
 
 # converts fasta files to pandas dataframes
 def fasta_to_pandas(f):
@@ -39,7 +26,7 @@ def fasta_to_pandas(f):
 
 
 # Makes following checks with respect to reference sequence:
-# 1. Does reference file has only one sequence? Is its ID part of Sequences file?
+# 1. Does reference file have only one sequence? Is its ID part of Sequences file?
 # 2. Does seq in Reference file and corresponding seq in Sequence file match?
 def check_ref_seq_in_alignment(reference_pd, alignment_pd):
     ref_id = list(reference_pd.columns)
@@ -394,9 +381,9 @@ def process_for_html(bool_query_region_pd, alignment_pd, query_pos_aligned, quer
 if __name__ == '__main__':
     query_pos_actual = [1,3,13]
 
-    reference_f = 'test_data/Reference.fasta'
+    reference_f = '../test_data/Reference.fasta'
     query_f = None
-    alignment_f = 'test_data/aligned.fasta'
+    alignment_f = '../test_data/aligned.fasta'
 
     # runs clustal omega alignment
     # if False:
@@ -411,23 +398,32 @@ if __name__ == '__main__':
 
     # process query pos and residue info in reference seq and in alignment
     query_ref_pd, query_info_in_alignment_pd = get_query_residue_info(query_pos_actual, reference_pd, ref_id, ref_seq_in_alignment)
+    print query_ref_pd, '\n', query_info_in_alignment_pd
 
     # get query positions in alignment
     query_pos_aligned = list(query_info_in_alignment_pd['pos_in_alignment'])
+    print query_pos_aligned
 
     # get query region of alignment
     query_region_pd, bool_query_region_pd, inverse_bool_query_region_pd = booleante(alignment_pd, query_pos_aligned, ref_id)
+    print query_region_pd
+    print bool_query_region_pd
+    print inverse_bool_query_region_pd
+
 
     # get length of sequences in alignment
     seq_length_alignment_pd = alignment_pd[alignment_pd != '-'].count()
+    print seq_length_alignment_pd
 
     # summarize residues at query positions
     unique_pd = summarize_unique_residues(query_info_in_alignment_pd, query_region_pd, ref_id)
+    print unique_pd
 
     # process data for csv output writing
     results_csv_pd = prepare_for_csv_output(query_region_pd, bool_query_region_pd, inverse_bool_query_region_pd, seq_length_alignment_pd, query_info_in_alignment_pd)
+    print results_csv_pd
 
     # write csv output
     write_csv_out(results_csv_pd, unique_pd, reference_f, query_f, alignment_f)
 
-    process_for_html(bool_query_region_pd, alignment_pd, query_pos_aligned, query_info_in_alignment_pd, unique_pd)
+    # process_for_html(bool_query_region_pd, alignment_pd, query_pos_aligned, query_info_in_alignment_pd, unique_pd)

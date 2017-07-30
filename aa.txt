@@ -1,6 +1,0 @@
-trial     <spaced><a name="1"><vert>1</vert></a> <a name="3"><vert>3</vert></a>         <a name="13"><vert>13</vert></a>                                              </spaced>
-id_1|a    <spaced><strong><span style="background-color: #42DB33">M</span></strong>R<strong><span style="background-color: #42DB33">I</span></strong>DAIPVGKNP<strong><span style="background-color: #42DB33">P</span></strong>HEVNVVIEVPIGGEPIKYEMDKDAGALFVDRFLYTA-MRYPGNYG-</spaced>
-id_2|b    <spaced><strong><span style="background-color: #42DB33">M</span></strong>N<strong><span style="background-color: #F73D94">L</span></strong>NKIVAGKDL<strong><span style="background-color: #42DB33">P</span></strong>EDIYVVIEIPANADPIKYEIDKESGALFVDRFMSTAM-FYPC--GY</spaced>
-i|c       <spaced><strong><span style="background-color: #42DB33">M</span></strong>D<strong><span style="background-color: #42DB33">I</span></strong>KKIPI-KDA<strong><span style="background-color: #42DB33">P</span></strong>RDVNVIIEIPLRSDPVKYEVDKESGAMYVDRFLHTAMHY-PCNYGF</spaced>
-
-
