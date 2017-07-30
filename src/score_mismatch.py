@@ -1,3 +1,10 @@
+'''
+Reads MSA and analyzes mismatches at query positions which are in reference to residue positions in reference sequence.
+Writes results in CSV and HTML.
+
+Author: 'Mana'valan Gajapathy
+'''
+
 from Bio import AlignIO
 from Bio import SeqIO
 import pandas as pd
@@ -34,13 +41,13 @@ def check_ref_seq_in_alignment_pd(reference_pd, alignment_pd):
 
     if len(ref_id) > 1:
         print 'Reference file has more than one sequence. Only one sequence is allowed'
-        raise
+        exit()
     else:
         ref_id = ref_id[0]
 
     if ref_id not in alignment_IDs:
         print "Reference sequence's ID not found in Query sequences file. Fix it and try again."
-        raise
+        exit()
 
 
     # ref_seq_in_alignment_pd = alignment_pd.loc[(alignment_pd[ref_id] != '-'), ref_id].reset_index(drop=True)
@@ -53,10 +60,10 @@ def check_ref_seq_in_alignment_pd(reference_pd, alignment_pd):
 
     if len(ref_seq_in_alignment_pd) != len(reference_pd[ref_id]):
         print "Reference sequence in Query sequences file does not match with sequence in Reference File. Also, their length don't match. Fix it and try again."
-        raise
+        exit()
     elif not ref_seq_in_alignment_pd[ref_id].equals(reference_pd[ref_id]):
         print 'Reference sequence in Query sequences file does not match with sequence in Reference File. Fix it and try again.'
-        raise
+        exit()
 
     return ref_id, ref_seq_in_alignment_pd
 
@@ -165,7 +172,7 @@ def prepare_for_csv_output(query_region_pd, bool_query_region_pd, inverse_bool_q
 
 
 # write results to a csv file
-def write_csv_out(results_csv_pd, unique_pd, reference_f, query_f, alignment_f):
+def write_csv_out(results_csv_pd, unique_pd, reference_f, query_seq_f, alignment_f):
     match_only_pd = results_csv_pd[results_csv_pd['mismatch_count'] == 0]
     add_serial_no(match_only_pd)
 
@@ -175,12 +182,12 @@ def write_csv_out(results_csv_pd, unique_pd, reference_f, query_f, alignment_f):
 
     # unique_pd = summarize_unique_residues(query_info_in_alignment_pd, query_region_pd, ref_id)
 
-    csv_outfile = 'output/csv_out.tsv'
+    csv_outfile = '../data/output/csv_out.tsv'
     with open(csv_outfile, 'w') as csv_handle:
         csv_handle.write('Reference sequences file used:    "%s"\n'
                          'Alignment file:    "%s"\n' % (reference_f, alignment_f))
-        if query_f:
-            csv_handle.write('Query sequences file used:    "%s"\n' % query_f)
+        if query_seq_f:
+            csv_handle.write('Query sequences file used:    "%s"\n' % query_seq_f)
         csv_handle.write('\n')
 
 
@@ -334,9 +341,9 @@ def html_text_out(alignment_pd, id_maxLength, query_info_in_alignment_pd, unique
     # print unique_pd
     # print list(query_info_in_alignment_pd['query_pos_in_ref'])
 
-    html_template_head_f = '/Users/mana/Documents/GitHub_downloaded/Mismatch_analyzer/test_data/Template_html5_ChartNewjs_head.txt'
-    html_template_tail_f = '/Users/mana/Documents/GitHub_downloaded/Mismatch_analyzer/test_data/Template_html5_ChartNewjs_tail.txt'
-    html_outfile = 'output/html_out.html'
+    html_template_head_f = 'Template_html5_ChartNewjs_head.txt'
+    html_template_tail_f = 'Template_html5_ChartNewjs_tail.txt'
+    html_outfile = '../data/output/html_out.html'
 
     # write starting block of html file to outfile
     copyfile(html_template_head_f, html_outfile)
@@ -349,9 +356,11 @@ def html_text_out(alignment_pd, id_maxLength, query_info_in_alignment_pd, unique
         info_lines = info_lines.replace(' mismatching ', ' <ins>mismatching</ins> ')
         info_lines += '-' * 100 + '\n\n'
         width_canvas = 325
-        # query_site_actual = [1,2,3]
-        # query_site_residues = ['A', 'D', 'R']
-        # identity_perc_list = [100, 33, 50]
+
+        if (63 * len(unique_pd)) < 325:
+            width_canvas = 325
+        else:
+            width_canvas = 63 * len(unique_pd)
 
         query_site_actual = list(query_info_in_alignment_pd['query_pos_actual'])
         query_site_residues = list(query_info_in_alignment_pd['query_residues'])
@@ -415,14 +424,8 @@ def process_for_html(ref_id, bool_query_region_pd, alignment_pd, query_pos_align
     html_text_out(alignment_pd, id_maxLength, query_info_in_alignment_pd, unique_pd, colored_id_pd, match_color, similar_color, mismatch_color, mismsatch_summary_info)
 
 
-# def xxxx():
-if __name__ == '__main__':
-    query_pos_actual = [1,3,13, 21]
 
-    reference_f = '../test_data/Reference.fasta'
-    query_f = None
-    alignment_f = '../test_data/aligned.fasta'
-
+def main_script(reference_f, query_seq_f, alignment_f, query_pos_list):
     # runs clustal omega alignment
     # if False:
     #     seq_f = ''
@@ -431,38 +434,55 @@ if __name__ == '__main__':
     reference_pd = fasta_to_pandas(reference_f)
     alignment_pd = fasta_to_pandas(alignment_f)
 
+    if query_pos_list == 'all':
+        query_pos_actual = range(0, len(reference_pd))
+    else:
+        query_pos_actual = query_pos_list
+
     # check reference sequence criteria pass prelimiary test
     ref_id, ref_seq_in_alignment_pd = check_ref_seq_in_alignment_pd(reference_pd, alignment_pd)
     # print ref_seq_in_alignment_pd
 
     # process query pos and residue info in reference seq and in alignment
     query_ref_pd, query_info_in_alignment_pd = get_query_residue_info(query_pos_actual, reference_pd, ref_id, ref_seq_in_alignment_pd)
-    print query_ref_pd, '\n', query_info_in_alignment_pd
+    # print query_ref_pd, '\n', query_info_in_alignment_pd
 
     # get query positions in alignment
     query_pos_aligned = list(query_info_in_alignment_pd['pos_in_alignment'])
-    print query_pos_aligned
+    # print query_pos_aligned
 
     # get query region of alignment
     query_region_pd, bool_query_region_pd, inverse_bool_query_region_pd = booleante(alignment_pd, query_pos_aligned, ref_id)
-    print query_region_pd
-    print bool_query_region_pd
-    print inverse_bool_query_region_pd
+    # print query_region_pd
+    # print bool_query_region_pd
+    # print inverse_bool_query_region_pd
 
 
     # get length of sequences in alignment
     seq_length_alignment_s = alignment_pd[alignment_pd != '-'].count()
-    print seq_length_alignment_s
+    # print seq_length_alignment_s
 
     # summarize residues at query positions
     unique_pd = summarize_unique_residues(query_info_in_alignment_pd, query_region_pd, ref_id)
-    print '\n', unique_pd
+    # print '\n', unique_pd
 
     # process data for csv output writing
     results_csv_pd = prepare_for_csv_output(query_region_pd, bool_query_region_pd, inverse_bool_query_region_pd, seq_length_alignment_s, query_info_in_alignment_pd)
-    print results_csv_pd
+    # print results_csv_pd
 
     # write csv output
-    mismsatch_summary_info = write_csv_out(results_csv_pd, unique_pd, reference_f, query_f, alignment_f)
+    mismsatch_summary_info = write_csv_out(results_csv_pd, unique_pd, reference_f, query_seq_f, alignment_f)
+    print 'Done writing CSV output'
 
+    # write html output
     process_for_html(ref_id, bool_query_region_pd, alignment_pd, query_pos_aligned, query_info_in_alignment_pd, unique_pd, mismsatch_summary_info)
+    print 'Done writing HTML output'
+
+
+if __name__ == '__main__':
+    query_pos_list = [1,3,13, 21]
+    reference_f = '../data/Reference.fasta'
+    query_seq_f = None
+    alignment_f = '../data/aligned.fasta'
+
+    main_script(reference_f, query_seq_f, alignment_f, query_pos_list)

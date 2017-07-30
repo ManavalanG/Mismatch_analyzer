@@ -1,9 +1,19 @@
+'''
+Main script for 'mismatch analyzer' tool.
+1. Get arguments from user
+2. Run Clustal Omega MSA if required
+3. Analyzes MSA for residue mismatches, and writes results in CSV and html files
+
+
+Author: 'Mana'valan Gajapathy
+'''
+
 import os
 import errno
 from Bio import SeqIO
-from parameter_script import fn_get_args
+from get_args_from_user import fn_get_args
 from run_clustalo import run_clustal_omega
-
+from score_mismatch import main_script
 
 # verifies if a directory exists in the path
 def mkdir_if_not_exist(dir_path):
@@ -18,7 +28,7 @@ def mkdir_if_not_exist(dir_path):
 # 1. Proper data type and files not being empty
 # 2. Adds reference seq to query seq file if not already present
 # 3. If already present, test reference sequence matches that in query file
-def check_input_files(reference_f, query_f, out_dir):
+def check_input_files(reference_f, query_seq_f, out_dir):
     # read reference sequence file
     try:
         reference_seq = SeqIO.read(reference_f, "fasta")
@@ -29,10 +39,10 @@ def check_input_files(reference_f, query_f, out_dir):
 
     # read query sequence file
     try:
-        query_seqs = list(SeqIO.parse(query_f, "fasta"))
+        query_seqs = list(SeqIO.parse(query_seq_f, "fasta"))
     except Exception as e:
         print "Ran into problem reading query sequence file:\n  '%s'" \
-              'Error: %s' % (query_f,e)
+              'Error: %s' % (query_seq_f,e)
         exit()
 
     # testing reference sequence file
@@ -53,17 +63,17 @@ def check_input_files(reference_f, query_f, out_dir):
     # Verifies if Reference sequence is present in query sequences and adds to it, if non-existent.
     if reference_seq.id not in query_seqs_id_list:
         query_seqs.append(reference_seq)
-        query_RefSeq_added_f = os.path.join(out_dir, os.path.splitext(os.path.basename(query_f))[0] + "_Reference_SeqAdded.fasta")
+        query_RefSeq_added_f = os.path.join(out_dir, os.path.splitext(os.path.basename(query_seq_f))[0] + "_Reference_SeqAdded.fasta")
         with open(query_RefSeq_added_f, 'w') as add_ref_seq_handle:
             SeqIO.write(query_seqs, add_ref_seq_handle, 'fasta')
 
         print ("Reference seq is not present in file: '%s'. "
-               "A new file '%s' is created with Reference Seq appended to it." % (query_f, query_RefSeq_added_f))
+               "A new file '%s' is created with Reference Seq appended to it." % (query_seq_f, query_RefSeq_added_f))
 
         # new reference seq added file becomes the query file
-        query_f = query_RefSeq_added_f
+        query_seq_f = query_RefSeq_added_f
     else:
-        # print 'Reference seq is present in file: %s' % query_f
+        # print 'Reference seq is present in file: %s' % query_seq_f
 
         # verify sequence in Reference file matches to that in Sequences file
         refseq_in_query = query_seqs[ query_seqs_id_list.index(reference_seq.id) ].seq
@@ -74,26 +84,41 @@ def check_input_files(reference_f, query_f, out_dir):
         # else:
         #     print "Reference sequence matches to corresponding sequence in Sequences file."
 
-    return query_f
+    return query_seq_f
 
 
-# def sddbd():
 if __name__ == '__main__':
     # get input filenames
-    # reference_f, query_f, aligned_f = fn_get_args()
+    reference_f, query_seq_f, alignment_f, query_pos_list = fn_get_args()
 
-    reference_f = 'test_data/Reference.fasta'
-    query_f = 'test_data/query.fasta'
+    # reference_f = '../data/Reference.fasta'
+    # query_seq_f = '../data/query.fasta'
 
 
-    # run clustal omega alignment
-    if reference_f and query_f:
-        out_dir = os.path.join(os.path.dirname(query_f), 'output')
+    # run clustal omega alignment, if alignment file not provided
+    out_dir = None
+    if reference_f and query_seq_f:
+        out_dir = os.path.join(os.path.dirname(query_seq_f), 'output')
         mkdir_if_not_exist(out_dir)
 
         # put reference and query file through some basic tests
-        query_f = check_input_files(reference_f, query_f, out_dir)
+        query_seq_f = check_input_files(reference_f, query_seq_f, out_dir)
 
         # align the sequences using clustal omega
-        aligned_f = os.path.join(out_dir, 'aligned.fasta')
-        run_clustal_omega(query_f, aligned_f)
+        print 'Running Clustal Omega for alignment'
+        alignment_f = os.path.join(out_dir, 'aligned.fasta')
+        run_clustal_omega(query_seq_f, alignment_f)
+        print 'Alignment process completed'
+
+
+
+    # read MSA for mismatch analysis
+    if reference_f and alignment_f:
+        if not out_dir:
+            out_dir = os.path.join(os.path.dirname(alignment_f), 'output')
+            mkdir_if_not_exist(out_dir)
+
+        # call main script to score mismatches in MSA at query residue positions
+        main_script(reference_f, query_seq_f, alignment_f, query_pos_list)
+
+        print 'Output stored at: \n   %s' % out_dir

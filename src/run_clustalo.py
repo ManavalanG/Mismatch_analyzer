@@ -1,3 +1,9 @@
+'''
+Runs Clustal Omega for a FASTA file.
+
+Author: 'Mana'valan Gajapathy
+'''
+
 from Bio.Align.Applications import ClustalOmegaCommandline
 
 def run_clustal_omega(seq_f, aligned_f):
@@ -12,14 +18,14 @@ def run_clustal_omega(seq_f, aligned_f):
     except Exception as e:  # This will catch all the major errors
         print 'Error in command directed to ClustalO. Check the command entered!'
         print 'Error resulted:\n%s' % e
-        raise
+        exit()
 
     try:
         clustalomega_cline()
     except Exception as e:  # This will catch all the major errors
         print 'Error when running Clustal Omega. Make sure Clustal Omega is installed and working properly'
         print 'Error resulted:\n%s' % e
-        raise
+        exit()
 
 
 if __name__ == '__main__':
