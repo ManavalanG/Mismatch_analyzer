@@ -4,7 +4,7 @@ alignment.
 
 ### How to use?
 1. Clone/[download](https://github.com/ManavalanG/Mismatch_analyzer/archive/master.zip) the repository
-2. Run tool '[src/mismatch analyzer](src/mismatch_analyzer.py)' with appropriate arguments. For example:
+2. Run tool '[src/mismatch_analyzer](src/mismatch_analyzer.py)' with appropriate arguments. For example:
 ```bash
 cd src
 python mismatch_analyzer.py -r ../data/reference.fasta  -qs ../data/query.fasta -qp "5,10,15"
@@ -20,7 +20,7 @@ python mismatch_analyzer.py -h
 ```
 
 ### Requirements
-* Python 2.7
+* [Python 2.7](https://www.python.org/downloads/release/python-2713/)
 * Required Python modules are listed in [requirements.txt](requirements.txt)
 * [Clustal Omega](http://www.clustal.org/omega/) if performing MSA is desired.  
 
