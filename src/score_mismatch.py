@@ -6,12 +6,9 @@ Author: 'Mana'valan Gajapathy
 '''
 
 from Bio import AlignIO
-from Bio import SeqIO
 import pandas as pd
 import pandascharm as pc
-import numpy as np
 from shutil import copyfile
-from run_clustalo import run_clustal_omega
 
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 100000)
@@ -426,11 +423,6 @@ def process_for_html(ref_id, bool_query_region_pd, alignment_pd, query_pos_align
 
 
 def main_script(reference_f, query_seq_f, alignment_f, query_pos_list):
-    # runs clustal omega alignment
-    # if False:
-    #     seq_f = ''
-    #     run_clustal_omega(seq_f, alignment_f)
-
     reference_pd = fasta_to_pandas(reference_f)
     alignment_pd = fasta_to_pandas(alignment_f)
 

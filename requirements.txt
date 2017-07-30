@@ -1,0 +1,11 @@
+# Following third party modules are required to run ResCons script which is written in Python 2.7:
+
+pandas
+pandas-charm
+
+# Biopython module. Written using version 1.69
+biopython
+
+
+# Others tools required beside Python modules:
+# Optionally Clustal Omega if it needs to be run locally.
