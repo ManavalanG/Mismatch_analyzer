@@ -43,6 +43,11 @@ def fn_get_args():
         print 'Error in query positions submitted. Use comma as delimiter. Eg: "20,30"'
         exit()
 
+    # checks arg requirements
+    if query_f and alignment_f:
+        print 'Error. Arguments -qs and -a cannot be used together. Only one can be used at once.'
+        exit()
+
     print 'Done reading arguments from user'
     return reference_f, query_f, alignment_f, query_pos_list
 

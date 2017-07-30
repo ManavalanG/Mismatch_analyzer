@@ -19,6 +19,9 @@ python mismatch_analyzer.py -r ../data/reference.fasta  -qs ../data/query.fasta 
 python mismatch_analyzer.py -h
 ```
 
+By default, output files would be written under directory `output` in directory with query sequences file or alignment 
+file, depending on the input arguments used.
+
 ### Requirements
 * [Python 2.7](https://www.python.org/downloads/release/python-2713/)
 * Required Python modules are listed in [requirements.txt](requirements.txt)
