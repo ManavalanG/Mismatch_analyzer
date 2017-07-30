@@ -86,7 +86,8 @@ def booleante(alignment_pd, query_pos_aligned, ref_id):
     query_region_pd = alignment_pd.loc[query_pos_aligned, :]
 
     bool_query_region_pd = query_region_pd.apply(lambda x:x==query_region_pd[ref_id])
-    inverse_bool_query_region_pd = query_region_pd.apply(lambda x:x!=query_region_pd[ref_id])    # True and False are switched
+    # inverse_bool_query_region_pd = query_region_pd.apply(lambda x:x!=query_region_pd[ref_id])    # True and False are switched
+    inverse_bool_query_region_pd = ~bool_query_region_pd    # True and False are switched
 
     return query_region_pd, bool_query_region_pd, inverse_bool_query_region_pd
 
@@ -185,15 +186,15 @@ def write_csv_out(results_csv_pd, unique_pd, reference_f, query_f, alignment_f):
 
         # summarize mismatch analysis for output writing
         temp_1 = (unique_pd['% Identity']==100).sum() - 1   # subtracts 1 to exclude ref sequence
-        temp_1_perc = float(temp_1) / (len(unique_pd)-1) * 100
+        temp_1_perc = float(temp_1) / (len(results_csv_pd)-1) * 100
         temp_2 = (unique_pd['% Identity']!=100).sum()
-        temp_2_perc = float(temp_2) / (len(unique_pd)-1) * 100
+        temp_2_perc = float(temp_2) / (len(results_csv_pd)-1) * 100
 
         mismsatch_summary_info = ('Number of sequences (excluding Reference sequence)\n'
                          '       in alignment:                               %i\n'
                          '       that have all residues matching:            %i (%0.1f %%)\n'
                          '       that have at least one mismatching residue: %i (%0.1f %%)\n\n'
-                         % (len(unique_pd)-1, temp_1, round(temp_1_perc, 1), temp_2, temp_2_perc))
+                         % (len(results_csv_pd)-1, temp_1, round(temp_1_perc, 1), temp_2, temp_2_perc))
         csv_handle.write(mismsatch_summary_info)
 
 
@@ -287,9 +288,9 @@ def html_color_legend(match_color, similar_color, mismatch_color, out_html_handl
     out_html_handle.write(temp + '-' * 100 + '\n\n')
 
 
-def html_alignment_text(alignment_pd, id_maxLength, query_info_in_alignment_pd, out_html_handle):
+def html_alignment_text(alignment_pd, id_maxLength, colored_id_pd, query_info_in_alignment_pd, out_html_handle):
     alignment_len = len(alignment_pd.columns)
-    block_size = 60
+    block_size = 31
     if alignment_len % block_size:
         no_of_blocks = (alignment_len/block_size + 1)
     else:
@@ -307,27 +308,27 @@ def html_alignment_text(alignment_pd, id_maxLength, query_info_in_alignment_pd, 
 
         # alignment_pd = pd.concat([query_line_pd.T, alignment_pd], axis=0)
         html_blocks_pd = pd.DataFrame(index=alignment_pd.index)
-        print html_blocks_pd
+        # print html_blocks_pd
         for block_no in range(0, no_of_blocks):
+            # print '***************** %i ******************' % block_no
             min = block_no * block_size
             max = (block_no +1) * block_size
             if alignment_len <= max:
                 max = alignment_len
 
-            print alignment_pd[range(min, max)], '\n'
+            # print alignment_pd[range(min, max)], '\n'
             html_blocks_pd[block_no] = alignment_pd[range(min, max)].apply(lambda x: ''.join(x), axis=1)
             # print html_blocks_pd
 
             for i, item in html_blocks_pd[block_no].iteritems():
-                # print i
-                out_html_handle.write('%s    <spaced>%s</spaced>\n' % (i.ljust(id_maxLength), item))
+                out_html_handle.write('%s    <spaced>%s</spaced>\n' % (colored_id_pd['ID'][i].ljust(id_maxLength), item))
 
             out_html_handle.write('\n\n')
 
     # query_pos_index(html_blocks_pd[block_no])
 
 
-def html_text_out(alignment_pd, id_maxLength, query_info_in_alignment_pd, unique_pd, match_color, similar_color, mismatch_color, mismsatch_summary_info):
+def html_text_out(alignment_pd, id_maxLength, query_info_in_alignment_pd, unique_pd, colored_id_pd, match_color, similar_color, mismatch_color, mismsatch_summary_info):
     # print query_info_in_alignment_pd
     # print unique_pd
     # print list(query_info_in_alignment_pd['query_pos_in_ref'])
@@ -345,6 +346,7 @@ def html_text_out(alignment_pd, id_maxLength, query_info_in_alignment_pd, unique
         info_lines = mismsatch_summary_info
         info_lines = info_lines.replace(' matching:', ' <ins>matching</ins>:')
         info_lines = info_lines.replace(' mismatching ', ' <ins>mismatching</ins> ')
+        info_lines += '-' * 100 + '\n\n'
         width_canvas = 325
         # query_site_actual = [1,2,3]
         # query_site_residues = ['A', 'D', 'R']
@@ -368,11 +370,11 @@ def html_text_out(alignment_pd, id_maxLength, query_info_in_alignment_pd, unique
         html_color_legend(match_color, similar_color, mismatch_color, out_html_handle)
 
         # write alignment text
-        html_alignment_text(alignment_pd, id_maxLength, query_info_in_alignment_pd, out_html_handle)
+        html_alignment_text(alignment_pd, id_maxLength, colored_id_pd, query_info_in_alignment_pd, out_html_handle)
 
 
 
-def process_for_html(bool_query_region_pd, alignment_pd, query_pos_aligned, query_info_in_alignment_pd, unique_pd, mismsatch_summary_info):
+def process_for_html(ref_id, bool_query_region_pd, alignment_pd, query_pos_aligned, query_info_in_alignment_pd, unique_pd, mismsatch_summary_info):
     # alignment_len = len(alignment_pd)
 
     bool_query_region_pd = bool_query_region_pd.T
@@ -382,25 +384,39 @@ def process_for_html(bool_query_region_pd, alignment_pd, query_pos_aligned, quer
     match_color = '#42DB33'
     similar_color = '#FFFF00'
     mismatch_color = '#F73D94'
+    ref_color = '#00FFFF'
 
     match_prefix = '<strong><span style="background-color: %s">' % match_color
-    suffix = '</span></strong>'
+    suffix_string = '</span></strong>'
     mismatch_prefix = '<strong><span style="background-color: %s">' % mismatch_color
+    ref_prefix = '<strong><span style="background-color: %s">' % ref_color
+    # match_prefix = '$'
+    # suffix_string = '#'
+    # mismatch_prefix = '$'
 
     for pos in query_pos_aligned:
         prefix = bool_query_region_pd[pos].apply(lambda x:match_prefix if x else mismatch_prefix)
-        suffix = bool_query_region_pd[pos].apply(lambda x:suffix)
-
+        suffix = bool_query_region_pd[pos].apply(lambda x:suffix_string)
         alignment_pd[pos] = prefix + alignment_pd[pos] + suffix
+        # alignment_pd[pos] = ''.join([prefix, alignment_pd[pos], suffix])
 
-    # print alignment_pd
 
-    html_text_out(alignment_pd, id_maxLength, query_info_in_alignment_pd, unique_pd, match_color, similar_color, mismatch_color, mismsatch_summary_info)
+    # To color IDs in html output
+    colored_id_pd = pd.DataFrame(index=bool_query_region_pd.index)
+    colored_id_pd['match_status'] = bool_query_region_pd.sum(axis=1) == len(unique_pd)
+    colored_id_pd['ID'] = bool_query_region_pd.index
+
+    colored_id_pd.loc[~(colored_id_pd['match_status']), 'ID'] = colored_id_pd['ID'].apply(lambda x:'%s%s%s' % (mismatch_prefix, x.ljust(id_maxLength), suffix_string))
+    colored_id_pd.loc[(colored_id_pd['match_status']), 'ID'] = colored_id_pd['ID'].apply(lambda x: '%s%s%s' % (match_prefix, x.ljust(id_maxLength), suffix_string))
+    colored_id_pd.loc[ref_id, 'ID'] = '%s%s%s' % (ref_prefix, ref_id.ljust(id_maxLength), suffix_string)
+
+
+    html_text_out(alignment_pd, id_maxLength, query_info_in_alignment_pd, unique_pd, colored_id_pd, match_color, similar_color, mismatch_color, mismsatch_summary_info)
 
 
 # def xxxx():
 if __name__ == '__main__':
-    query_pos_actual = [1,3,13]
+    query_pos_actual = [1,3,13, 21]
 
     reference_f = '../test_data/Reference.fasta'
     query_f = None
@@ -448,4 +464,4 @@ if __name__ == '__main__':
     # write csv output
     mismsatch_summary_info = write_csv_out(results_csv_pd, unique_pd, reference_f, query_f, alignment_f)
 
-    process_for_html(bool_query_region_pd, alignment_pd, query_pos_aligned, query_info_in_alignment_pd, unique_pd, mismsatch_summary_info)
+    process_for_html(ref_id, bool_query_region_pd, alignment_pd, query_pos_aligned, query_info_in_alignment_pd, unique_pd, mismsatch_summary_info)
