@@ -328,7 +328,8 @@ def html_alignment_text(alignment_pd, id_maxLength, colored_id_pd, query_info_in
     # query_pos_index(html_blocks_pd[block_no])
 
 
-def html_text_out(alignment_pd, id_maxLength, query_info_in_alignment_pd, unique_pd, colored_id_pd, match_color, similar_color, mismatch_color, mismsatch_summary_info):
+def html_text_out(alignment_pd, id_maxLength, query_info_in_alignment_pd, unique_pd, colored_id_pd, match_color,
+                  similar_color, mismatch_color, mismsatch_summary_info):
     # print query_info_in_alignment_pd
     # print unique_pd
     # print list(query_info_in_alignment_pd['query_pos_in_ref'])

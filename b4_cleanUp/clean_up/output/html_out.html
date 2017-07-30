@@ -3667,16 +3667,17 @@ function tpdraw(ctx,dataval) {
 
 <!--
 following line enables ResCons to read following lines and keep it in memory for later use.
-check_by_ResCons-->
-</HEAD>
+check_by_ResCons--></HEAD>
 <BODY LANG="en-US" DIR="LTR">
 <PRE CLASS="western">
-Number of sequences
-         in alignment (excluding Reference sequence)                    :  2
-         that have all residues <ins>matching</ins> (excluding Reference sequence) :  0  (0.0 %)
-         that have at least one <ins>mismatching</ins> residue                     :  2  (100.0 %)
+Number of sequences (excluding Reference sequence)
+       in alignment:                               2
+       that have all residues <ins>matching</ins>:            1 (50.0 %)
+       that have at least one <ins>mismatching</ins> residue: 2 (100.0 %)
 
-----------------------------------------------------------------------------------------------------<div>
+----------------------------------------------------------------------------------------------------
+
+<div>
   <canvas id="canvas_bar" height="350", width = "325" ></canvas>
 <div id="legend"></div>
 </div>
@@ -3684,11 +3685,11 @@ Number of sequences
 <script>
 	var barChartData = 
 	{
-		labels : [1, 3, 13],
+		labels : [1, 3, 13, 21],
 		datasets : [
 		{	fillColor : "rgba(51,51,255,0.8)",
 			title: "% Identity",
-			data : [100.0, 0, 0]  },
+			data : [100.0, 50.0, 50.0, 100.0]  },
 
 		]
 	}
@@ -3913,12 +3914,14 @@ var newopts = {
 		<TD width=60><a href="#1">1<BR>M</a></TD>
 		<TD width=60><a href="#3">3<BR>I</a></TD>
 		<TD width=60><a href="#13">13<BR>P</a></TD>
+		<TD width=60><a href="#21">21<BR>E</a></TD>
 	</TR>
 	<TR ALIGN="CENTER">
 		<TH scope="row" width=130>% Identity</TH>
 		<TD width=60>100.0</TD>
-		<TD width=60>0.0</TD>
-		<TD width=60>0.0</TD>
+		<TD width=60>50.0</TD>
+		<TD width=60>50.0</TD>
+		<TD width=60>100.0</TD>
 	</TR>
 </TABLE>
 ----------------------------------------------------------------------------------------------------
@@ -3933,19 +3936,13 @@ var newopts = {
 
 ----------------------------------------------------------------------------------------------------
 
-            <spaced><a name="1"><vert>1</vert></a>  <a name="3"><vert>3</vert></a>         <a name="13"><vert>1<br />3</vert></a>                                             </spaced>
-<strong><span style="background-color: #00FFFF">id_1|a </span></strong>     <spaced><strong><span style="background-color: #42DB33">M</span></strong>R-<strong><span style="background-color: #42DB33">I</span></strong>DAIPVGKNP<strong><span style="background-color: #42DB33">P</span></strong>HEVNVVIEVPIGGEPIKYEMDKDAGALFVDRFLYTA-MRYPGNYG</spaced>   57
-<span style="background-color: #F73D94">id</span>_2|b      <spaced><strong><span style="background-color: #42DB33">M</span></strong>NL<strong><span style="background-color: #F73D94">N</span></strong>KIVAGKDLP<strong><span style="background-color: #F73D94">E</span></strong>DIYVVIEIPANADPIKYEIDKESGALFVDRFMSTAM-FYPC--GY</spaced>   56
-<span style="background-color: #F73D94">i|</span>c         <spaced><strong><span style="background-color: #42DB33">M</span></strong>DI<strong><span style="background-color: #F73D94">K</span></strong>KIPI-KDAP<strong><span style="background-color: #F73D94">R</span></strong>DVNVIIEIPLRSDPVKYEVDKESGAMYVDRFLHTAMHY-PCNYGF</spaced>   57
+<strong><span style="background-color: #00FFFF">id_1|a</span></strong>    <spaced><strong><span style="background-color: #42DB33">M</span></strong>R<strong><span style="background-color: #42DB33">I</span></strong>DA-IPVGKNP<strong><span style="background-color: #42DB33">P</span></strong>HEVNVVI<strong><span style="background-color: #42DB33">E</span></strong>VPIGGEPIK</spaced>
+<strong><span style="background-color: #42DB33">id_2|b</span></strong>    <spaced><strong><span style="background-color: #42DB33">M</span></strong>N<strong><span style="background-color: #42DB33">I</span></strong>NKDIVAGKDL<strong><span style="background-color: #42DB33">P</span></strong>EDIYVVI<strong><span style="background-color: #42DB33">E</span></strong>IPANADPIK</spaced>
+<strong><span style="background-color: #F73D94">i|c   </span></strong>    <spaced><strong><span style="background-color: #42DB33">M</span></strong>D<strong><span style="background-color: #F73D94">A</span></strong>KKEIPI-KDA<strong><span style="background-color: #F73D94">C</span></strong>RDVNVII<strong><span style="background-color: #42DB33">E</span></strong>IPLRSDPVK</spaced>
 
 
-<ins>Input files used:</ins>
-	 /Users/mana/Documents/GitHub_downloaded/Mismatch_analyzer/test_data/aligned.fasta 
-	 /Users/mana/Documents/GitHub_downloaded/Mismatch_analyzer/test_data/Reference.fasta
+<strong><span style="background-color: #00FFFF">id_1|a</span></strong>    <spaced>YEMDKDAGALFVDRFLYTA-MRYPGNYG-</spaced>
+<strong><span style="background-color: #42DB33">id_2|b</span></strong>    <spaced>YEIDKESGALFVDRFMSTAM-FYPC--GY</spaced>
+<strong><span style="background-color: #F73D94">i|c   </span></strong>    <spaced>YEVDKESGAMYVDRFLHTAMHY-PCNYGF</spaced>
 
-Residue conservation method used                :   <b>Amino acid Grouping</b>
-Is Reference sequence included in calculations? :   <b>No</b>
 
-</PRE>
-</BODY>
-</HTML>
