@@ -81,7 +81,15 @@ def get_query_residue_info(query_pos_actual, reference_pd, ref_id, ref_seq_in_al
     query_info_in_alignment_pd['query_label_csv'] = query_info_in_alignment_pd['query_pos_actual'].astype(str) + ' "' + query_info_in_alignment_pd['query_residues'] + '"'
     query_info_in_alignment_pd['query_label_html'] = query_info_in_alignment_pd['query_pos_actual'].astype(str) + '<BR>' + query_info_in_alignment_pd['query_residues']
     query_info_in_alignment_pd['query_line_html'] = '<a name="' + query_info_in_alignment_pd['query_pos_actual'].astype(str) \
-                                                    + '"><vert>' + query_info_in_alignment_pd['query_pos_actual'].astype(str) + '</vert></a>'
+                                                    + '"><vert>' \
+                                                    +  query_info_in_alignment_pd['query_pos_actual'].astype(str) \
+                                                    + '</vert></a>'
+
+    query_info_in_alignment_pd['query_line_html'] = query_info_in_alignment_pd['query_pos_actual'].apply(lambda x:'<a name="%s"><vert>%s</vert></a>' % (x,'<br />'.join(list(str(x)))))
+
+
+    # query_info_in_alignment_pd['query_line_html'] = '<a name="' + query_info_in_alignment_pd['query_pos_actual'].astype(str) \
+    #                                                 + '"><vert>' + query_info_in_alignment_pd['query_pos_actual'].astype(str) + '</vert></a>'
 
     return query_ref_pd, query_info_in_alignment_pd
 
@@ -218,7 +226,7 @@ def write_csv_out(results_csv_pd, unique_pd, bool_query_region_pd, reference_f, 
 
 
 def html_chart_text(info_lines, width_canvas, query_site_actual, identity_perc_list, out_html_handle):
-    text_for_chart = ('</HEAD>\n<BODY LANG="en-US" DIR="LTR">\n'
+    text_for_chart = ('\n</HEAD>\n<BODY LANG="en-US" DIR="LTR">\n'
                       '<PRE CLASS="western">\n%s'
                       '<div>\n  <canvas id="canvas_bar" height="350", width = "%i" ></canvas>\n'
                       '<div id="legend"></div>\n</div>\n\n<script>\n'
@@ -305,12 +313,12 @@ def html_alignment_text(alignment_pd, id_maxLength, colored_id_pd, query_info_in
 
     # with open('aa.txt', 'w') as handle:
     if True:
-
+        # for labelling query residue positions above alignment in html output
         query_line_pd = pd.DataFrame(index=alignment_pd.columns)
-        query_line_pd['trial'] = ' '
-        # print query_info_in_alignment_pd
-        query_line_pd.loc[(query_info_in_alignment_pd['pos_in_alignment']), 'trial'] = list(query_info_in_alignment_pd['query_line_html'])
-        query_line_pd['trial'].fillna(' ')
+        query_line_pd['pos_label'] = ' '
+        query_line_pd.loc[(query_info_in_alignment_pd['pos_in_alignment']), 'pos_label'] = list(query_info_in_alignment_pd['query_line_html'])
+        query_line_pd['pos_label'].fillna(' ')
+        # print query_line_pd
 
 
         # alignment_pd = pd.concat([query_line_pd.T, alignment_pd], axis=0)
@@ -323,16 +331,16 @@ def html_alignment_text(alignment_pd, id_maxLength, colored_id_pd, query_info_in
             if alignment_len <= max:
                 max = alignment_len
 
-            # print alignment_pd[range(min, max)], '\n'
             html_blocks_pd[block_no] = alignment_pd[range(min, max)].apply(lambda x: ''.join(x), axis=1)
-            # print html_blocks_pd
+
+            label_line = '%s    <spaced>%s</spaced>\n' % (''.ljust(id_maxLength), ''.join(query_line_pd.loc[min:max, 'pos_label']))
+            out_html_handle.write(label_line)
 
             for i, item in html_blocks_pd[block_no].iteritems():
                 out_html_handle.write('%s    <spaced>%s</spaced>\n' % (colored_id_pd['ID'][i].ljust(id_maxLength), item))
 
             out_html_handle.write('\n\n')
 
-    # query_pos_index(html_blocks_pd[block_no])
 
 
 def html_text_out(alignment_pd, id_maxLength, query_info_in_alignment_pd, unique_pd, colored_id_pd, match_color,
@@ -420,8 +428,10 @@ def process_for_html(ref_id, bool_query_region_pd, alignment_pd, query_pos_align
     colored_id_pd['match_status'] = bool_query_region_pd.sum(axis=1) == len(unique_pd)
     colored_id_pd['ID'] = bool_query_region_pd.index
 
-    colored_id_pd.loc[~(colored_id_pd['match_status']), 'ID'] = colored_id_pd['ID'].apply(lambda x:'%s%s%s%s' % (mismatch_prefix, x[:2], suffix_string, x[2:].ljust(id_maxLength-2)))
-    colored_id_pd.loc[(colored_id_pd['match_status']), 'ID'] = colored_id_pd['ID'].apply(lambda x: '%s%s%s%s' % (match_prefix, x[:2], suffix_string, x[2:].ljust(id_maxLength-2)))
+    colored_id_pd.loc[~(colored_id_pd['match_status']), 'ID'] = colored_id_pd['ID']\
+        .apply(lambda x:'%s%s%s%s' % (mismatch_prefix.replace('<strong>', ''), x[:2], suffix_string.replace('</strong>', ''), x[2:].ljust(id_maxLength-2)))
+    colored_id_pd.loc[(colored_id_pd['match_status']), 'ID'] = colored_id_pd['ID']\
+        .apply(lambda x: '%s%s%s%s' % (match_prefix.replace('<strong>', ''), x[:2], suffix_string.replace('</strong>', ''), x[2:].ljust(id_maxLength-2)))
     colored_id_pd.loc[ref_id, 'ID'] = '%s%s%s' % (ref_prefix, ref_id.ljust(id_maxLength), suffix_string)
 
 
@@ -479,7 +489,7 @@ def main_script(reference_f, query_seq_f, alignment_f, query_pos_list, out_dir):
 
 
 if __name__ == '__main__':
-    query_pos_list = [1,3,13, 21]
+    query_pos_list = [1,3,13, 21, 46]
     reference_f = '../data/Reference.fasta'
     query_seq_f = None
     alignment_f = '../data/aligned.fasta'

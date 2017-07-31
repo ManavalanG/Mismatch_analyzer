@@ -1,25 +1,27 @@
-Reference sequences file used:    "/Users/mana/Documents/GitHub_downloaded/Mismatch_analyzer/data/reference.fasta"
-Alignment file:    "/Users/mana/Documents/GitHub_downloaded/Mismatch_analyzer/data/output/aligned.fasta"
-Query sequences file used:    "/Users/mana/Documents/GitHub_downloaded/Mismatch_analyzer/data/query.fasta"
+Reference sequences file used:    "../data/Reference.fasta"
+Alignment file:    "../data/aligned.fasta"
 
 Number of sequences (excluding Reference sequence)
        in alignment:                               2
-       that have all residues matching:            1 (50.0 %)
-       that have at least one mismatching residue: 1 (50.0 %)
+       that have all residues matching:            0 (0.0 %)
+       that have at least one mismatching residue: 2 (100.0 %)
 
 
 *** Records that have mismatches in at least one of the query sites ***
-S.No	ID_1	ID_2	seq_length_alignment_s	mismatch_count	"7 ""P"""	"10 ""K"""
-1	id_2	b	56	1	V	=
+S.No	ID_1	ID_2	seq_length_alignment_s	mismatch_count	"1 ""M"""	"3 ""I"""	"13 ""P"""	"21 ""E"""	"46 ""L"""
+1	id_2	b	57	1	=	=	=	=	M
+2	i	c	58	2	=	A	C	=	=
 
 
 *** Unique residues seen at the query sites and their count. ***
 Expected Residue	Identity_count	% Identity	Unique residues' count and fraction
-"7 ""P"""	1.0	50.0	V: 1 (50.0%), P: 1 (50.0%)
-"10 ""K"""	2.0	100.0	K: 2 (100.0%)
+"1 ""M"""	2.0	100.0	M: 2 (100.0%)
+"3 ""I"""	1.0	50.0	A: 1 (50.0%), I: 1 (50.0%)
+"13 ""P"""	1.0	50.0	C: 1 (50.0%), P: 1 (50.0%)
+"21 ""E"""	2.0	100.0	E: 2 (100.0%)
+"46 ""L"""	1.0	50.0	L: 1 (50.0%), M: 1 (50.0%)
 
 
 *** Records that Do Not have mismatches at any of the query sites ***
-S.No	ID_1	ID_2	seq_length_alignment_s	mismatch_count	"7 ""P"""	"10 ""K"""
-1	id_1	a	57	0	=	=
-2	i	c	57	0	=	=
+S.No	ID_1	ID_2	seq_length_alignment_s	mismatch_count	"1 ""M"""	"3 ""I"""	"13 ""P"""	"21 ""E"""	"46 ""L"""
+1	id_1	a	57	0	=	=	=	=	=
