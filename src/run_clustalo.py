@@ -16,7 +16,7 @@ def run_clustal_omega(seq_f, aligned_f):
     try:
         clustalomega_cline = ClustalOmegaCommandline(**clustal_commandline)
     except Exception as e:  # This will catch all the major errors
-        print 'Error in command directed to ClustalO. Check the command entered!'
+        print 'Error in command directed to Clustal Omega. Check the command entered!'
         print 'Error resulted:\n%s' % e
         exit()
 
